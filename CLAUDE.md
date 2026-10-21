@@ -68,7 +68,10 @@ Layout: `server/src/Rejtek.Server` (feature folders: `Features/Auth|Devices|Vaul
 - Vault key: random, in Keystore-backed `expo-secure-store` (this device only). Unlock = system prompt via `expo-local-authentication` (biometric or device PIN/pattern); not biometric-bound, so new fingerprints never make the vault unreadable. A device screen lock is required.
 - Auto-lock after 60 s in the background; lock clears decrypted data from memory. Clipboard copies are marked sensitive and cleared after 30 s. Screenshots are blocked in release builds (`FLAG_SECURE`), allowed in dev builds. `allowBackup: false`.
 - Accent: Android 12+ Material You system colours via `PlatformColor`, fallback tokens elsewhere.
-- Dev: `npm run android -w @rejtek/mobile` (build + install), `npm start -w @rejtek/mobile` (Metro). Emulator AVD: `OnePlus_15`.
+- Server connection: `modules/pinned-fetch` (local Expo module, Kotlin) trusts exactly the certificate whose SHA-256 came from the pairing QR; hostname is not checked (the pin is the identity). Device token + server URL/fingerprint in SecureStore.
+- Pairing: QR / deep link `rejtek://pair?p=<base64url JSON>` → master password once → local items re-encrypted under the account vault key (crash-safe: pending key slot, single transaction, then promote). The web UI must be opened via the server's LAN address, since the QR carries the page origin.
+- Sync (`core/src/sync`): diff by id/version/syncedVersion, names decrypted for display only. Push sends the diffed server version as `baseVersion` (409 on concurrent change). Bulk pull/push never delete one-sided items.
+- Dev: `npm run android -w @rejtek/mobile` (build + install), `npm start -w @rejtek/mobile` (Metro, never with `CI=1`: that disables reloads). Emulator AVD: `OnePlus_15`; it reaches the host as `10.0.2.2` (e.g. Docker server at `https://10.0.2.2:8443`).
 
 ## UI
 
@@ -86,7 +89,7 @@ Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens"
 2. ~~Server + Docker~~ (done) — verify: integration tests for auth, items CRUD, version conflicts; `docker compose up` serves HTTPS.
 3. ~~Web UI~~ (done): register, login, vault CRUD, search-as-you-type, reveal, devices, pairing QR.
 4. ~~Mobile local vault + biometric unlock~~ (done; verified on the OnePlus_15 emulator: unlock, add/edit/delete, search, reveal auto-hide, dark mode, auto-lock).
-5. Pairing + sync — verify: diff scenarios (each tag), off-LAN graceful failure.
+5. ~~Pairing + sync~~ (done; verified on the emulator against the Docker server: pairing, push/pull, in sync, offline, certificate change, disconnect).
 6. ~~UI design~~ (done, see UI section). Implement screens per the designs within phases 3–5.
 7. Browser extension (search + copy; autofill later).
 
