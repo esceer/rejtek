@@ -4,6 +4,8 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useServer } from '../server/ServerProvider';
+import { SyncStatusCard } from '../sync/SyncStatusCard';
 import { createStyles, useTheme } from '../theme/useTheme';
 import { Avatar } from '../ui/Avatar';
 import { IconButton } from '../ui/IconButton';
@@ -17,6 +19,7 @@ export default function VaultScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { lock } = useUnlockedVault();
+  const { config } = useServer();
   const items = useLocalItems();
   const [query, setQuery] = useState('');
 
@@ -31,7 +34,18 @@ export default function VaultScreen() {
           ? `${String(all.length)} ${all.length === 1 ? 'item' : 'items'}`
           : 'Decrypting…'
       }
-      headerRight={<IconButton icon="lock-outline" label="Lock now" onPress={lock} />}
+      headerRight={
+        <>
+          <IconButton icon="lock-outline" label="Lock now" onPress={lock} />
+          <IconButton
+            icon="cog-outline"
+            label="Settings"
+            onPress={() => {
+              router.push('/settings');
+            }}
+          />
+        </>
+      }
       scroll={false}
     >
       <FlatList
@@ -40,8 +54,9 @@ export default function VaultScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={[styles.list, { paddingBottom: insets.bottom + 104 }]}
         ListHeaderComponent={
-          <View style={styles.search}>
+          <View style={styles.header}>
             <SearchField value={query} onChangeText={setQuery} />
+            {config && <SyncStatusCard config={config} />}
           </View>
         }
         ListEmptyComponent={
@@ -106,7 +121,7 @@ function ItemRow({
 
 const useStyles = createStyles((t) => ({
   list: { paddingHorizontal: 16 },
-  search: { paddingBottom: 12 },
+  header: { gap: 12, paddingBottom: 12 },
   empty: { padding: 24, textAlign: 'center', fontSize: 15, color: t.colors.muted },
   row: {
     flexDirection: 'row',

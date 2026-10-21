@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { avatarLetter, avatarTint, displayHost, safeHref } from '../src/index';
+import { avatarLetter, avatarTint, displayHost, formatRelative, safeHref } from '../src/index';
 
 describe('safeHref', () => {
   it.each([
@@ -28,5 +28,18 @@ describe('avatars', () => {
   it('takes the first code point', () => {
     expect(avatarLetter(' árvíz')).toBe('Á');
     expect(avatarLetter('')).toBe('?');
+  });
+});
+
+describe('formatRelative', () => {
+  const now = new Date('2026-10-21T12:00:00Z');
+
+  it.each([
+    ['2026-10-21T11:59:30Z', 'just now'],
+    ['2026-10-21T11:59:00Z', '1 minute ago'],
+    ['2026-10-21T09:00:00Z', '3 hours ago'],
+    ['2026-10-19T12:00:00Z', '2 days ago'],
+  ])('%s → %s', (iso, expected) => {
+    expect(formatRelative(iso, now)).toBe(expected);
   });
 });

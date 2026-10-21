@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ServerProvider } from '../server/ServerProvider';
 import { useTheme } from '../theme/useTheme';
 import { useVault, VaultProvider } from '../vault/VaultProvider';
 
@@ -16,7 +17,9 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <VaultProvider>
-          <RootStack />
+          <ServerProvider>
+            <RootStack />
+          </ServerProvider>
         </VaultProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
@@ -46,6 +49,11 @@ function RootStack() {
           <Stack.Screen name="index" />
           <Stack.Screen name="item/[id]" />
           <Stack.Screen name="edit/[id]" options={{ animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="settings" />
+          <Stack.Screen name="sync" />
+          <Stack.Screen name="pair/index" />
+          <Stack.Screen name="pair/scan" />
+          <Stack.Screen name="pair/confirm" />
         </Stack.Protected>
         <Stack.Protected guard={unlocked === null}>
           <Stack.Screen name="unlock" options={{ animation: 'fade' }} />

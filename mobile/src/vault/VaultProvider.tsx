@@ -12,7 +12,7 @@ import { AppState } from 'react-native';
 import { loadSodium } from '../lib/sodium';
 import { authenticateUser, hasScreenLock } from './device-auth';
 import { LocalVaultStore } from './local-store';
-import { loadOrCreateVaultKey } from './vault-key';
+import { loadOrCreateVaultKey, replaceVaultKey } from './vault-key';
 
 /** Lock again when the app was in the background longer than this. */
 const AUTO_LOCK_AFTER_MS = 60_000;
@@ -23,6 +23,8 @@ interface VaultContextValue {
   readonly unlocked: { readonly vaultKey: Uint8Array; readonly store: LocalVaultStore } | null;
   readonly unlock: () => Promise<UnlockResult>;
   readonly lock: () => void;
+  /** Re-encrypts the vault under `newKey` (the account key after pairing). */
+  readonly changeVaultKey: (newKey: Uint8Array) => Promise<void>;
 }
 
 const VaultContext = createContext<VaultContextValue | null>(null);
@@ -44,10 +46,22 @@ export function VaultProvider({ children }: { children: ReactNode }) {
       return 'cancelled';
     }
     const [sodium, store] = await Promise.all([loadSodium(), LocalVaultStore.open()]);
-    const vaultKey = await loadOrCreateVaultKey(sodium, (await store.count()) > 0);
+    const vaultKey = await loadOrCreateVaultKey(sodium, store);
     setUnlocked({ vaultKey, store });
     return 'unlocked';
   }, []);
+
+  const changeVaultKey = useCallback(
+    async (newKey: Uint8Array) => {
+      if (!unlocked) {
+        throw new Error('Vault is locked');
+      }
+      await replaceVaultKey(await loadSodium(), unlocked.store, unlocked.vaultKey, newKey);
+      setUnlocked({ ...unlocked, vaultKey: newKey });
+      await queryClient.invalidateQueries();
+    },
+    [unlocked, queryClient],
+  );
 
   useEffect(() => {
     let backgroundedAt: number | null = null;
@@ -66,7 +80,10 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     };
   }, [lock]);
 
-  const value = useMemo(() => ({ unlocked, unlock, lock }), [unlocked, unlock, lock]);
+  const value = useMemo(
+    () => ({ unlocked, unlock, lock, changeVaultKey }),
+    [unlocked, unlock, lock, changeVaultKey],
+  );
   return <VaultContext value={value}>{children}</VaultContext>;
 }
 
@@ -80,9 +97,9 @@ export function useVault(): VaultContextValue {
 
 /** For screens behind the unlock guard. */
 export function useUnlockedVault() {
-  const { unlocked, lock } = useVault();
+  const { unlocked, lock, changeVaultKey } = useVault();
   if (!unlocked) {
     throw new Error('Vault is locked');
   }
-  return { ...unlocked, lock };
+  return { ...unlocked, lock, changeVaultKey };
 }

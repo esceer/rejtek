@@ -31,6 +31,16 @@ export function PairPage() {
       </Link>
       <h1 className="mt-2 mb-6 text-[28px] font-bold tracking-tight">Pair a phone</h1>
 
+      {isLoopback(window.location.hostname) && (
+        <div className="mb-5">
+          <Alert tone="warn">
+            You opened Rejtek via <strong>{window.location.host}</strong>, which your phone cannot
+            reach. Open this page using the server&apos;s network address (for example
+            https://192.168.1.20:8443) before scanning.
+          </Alert>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-stretch gap-5">
         <Card className="flex min-w-0 flex-[1_1_340px] flex-col items-center gap-4.5 p-7">
           {pairing.isError && <Alert tone="danger">Could not create a pairing code.</Alert>}
@@ -126,4 +136,9 @@ function PairingCode({ pairing }: { pairing: PairingTokenResponse }) {
       </div>
     </>
   );
+}
+
+/** The QR code carries this page's origin; a loopback address is useless to the phone. */
+function isLoopback(hostname: string): boolean {
+  return hostname === 'localhost' || hostname === '[::1]' || hostname.startsWith('127.');
 }

@@ -25,7 +25,14 @@ export {
   type PasswordStrength,
 } from './password-strength';
 export { DEFAULT_PASSWORD_LENGTH, generatePassword } from './password-generator';
-export { avatarLetter, avatarTint, displayHost, formatDate, safeHref } from './display';
+export {
+  avatarLetter,
+  avatarTint,
+  displayHost,
+  formatDate,
+  formatRelative,
+  safeHref,
+} from './display';
 export {
   canPull,
   canPush,

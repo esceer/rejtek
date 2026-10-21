@@ -29,7 +29,17 @@
       "react-native-libsodium",
       [
         "expo-local-authentication",
-        { "faceIDPermission": "Unlock your Rejtek vault with Face ID." }
+        {
+          "faceIDPermission": "Unlock your Rejtek vault with Face ID."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Rejtek uses the camera to scan the pairing code shown on your home server.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
       ]
     ],
     "experiments": {

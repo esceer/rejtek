@@ -56,3 +56,20 @@ export function avatarTint(name: string): string {
 export function avatarLetter(name: string): string {
   return Array.from(name.trim())[0]?.toUpperCase() ?? '?';
 }
+
+/** Compact English relative time, e.g. "just now", "5 minutes ago", "2 days ago". */
+export function formatRelative(iso: string, now: Date = new Date()): string {
+  const seconds = Math.max(0, Math.round((now.getTime() - new Date(iso).getTime()) / 1000));
+  const units: [number, string][] = [
+    [86_400, 'day'],
+    [3_600, 'hour'],
+    [60, 'minute'],
+  ];
+  for (const [size, unit] of units) {
+    if (seconds >= size) {
+      const value = Math.floor(seconds / size);
+      return `${String(value)} ${unit}${value === 1 ? '' : 's'} ago`;
+    }
+  }
+  return 'just now';
+}
