@@ -4,23 +4,24 @@ Personal password manager. A server runs as a Docker container on the home LAN a
 
 ## Components
 
-| Component | Stack | Purpose |
-|---|---|---|
-| `server/` | C# ASP.NET Core (Minimal APIs), EF Core, SQLite | Users, devices/pairing, encrypted vault storage, serves the web app |
-| `web/` | React + TypeScript (Vite) | LAN web UI: register/login, vault CRUD + search, QR pairing, device management |
-| `mobile/` | React Native (Expo, dev build) + TypeScript | Android first, iOS later. Offline vault, biometric unlock, sync |
-| `extension/` | React + TypeScript, WebExtension (Manifest V3) | Last phase. Chrome + Firefox. Search/copy credentials from server on LAN |
-| `packages/core/` | TypeScript | Shared: crypto, data models, sync/diff logic, API client. Used by web, mobile, extension |
+| Component        | Stack                                           | Purpose                                                                                  |
+| ---------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `server/`        | C# ASP.NET Core (Minimal APIs), EF Core, SQLite | Users, devices/pairing, encrypted vault storage, serves the web app                      |
+| `web/`           | React + TypeScript (Vite)                       | LAN web UI: register/login, vault CRUD + search, QR pairing, device management           |
+| `mobile/`        | React Native (Expo, dev build) + TypeScript     | Android first, iOS later. Offline vault, biometric unlock, sync                          |
+| `extension/`     | React + TypeScript, WebExtension (Manifest V3)  | Last phase. Chrome + Firefox. Search/copy credentials from server on LAN                 |
+| `packages/core/` | TypeScript                                      | Shared: crypto, data models, sync/diff logic, API client. Used by web, mobile, extension |
 
-Monorepo with npm/pnpm workspaces for TS packages. Server is a separate .NET solution.
+Monorepo with npm workspaces for TS packages. Server is a separate .NET solution.
 
 ## Security model (non-negotiable)
 
 - **Zero-knowledge**: all encryption/decryption happens on clients (`packages/core`). Server stores only ciphertext and never sees the master password or keys.
-- Master password + per-user salt → **Argon2id** → master key → HKDF splits into:
-  - `encKey`: wraps the random 256-bit **vault key** (AES-256-GCM).
+- Crypto library: **libsodium** everywhere (`libsodium-wrappers-sumo` on web/extension, `react-native-libsodium` on mobile), injected into `packages/core` via the `Sodium` interface.
+- Master password (NFKC-normalised) + per-user salt → **Argon2id** → master key → `crypto_kdf` splits into:
+  - `encryptionKey`: wraps the random 256-bit **vault key** (XChaCha20-Poly1305).
   - `authKey`: sent to server for login; server stores only its hash (Argon2id).
-- Each vault item encrypted with the vault key (AES-256-GCM, unique nonce per encryption). Item name/URL/username/password/notes are all encrypted; server sees only `id`, `version`, timestamps, `deleted` flag.
+- Each vault item encrypted with the vault key (XChaCha20-Poly1305, random 24-byte nonce, item id as associated data). Item name/URL/username/password/notes are all encrypted; server sees only `id`, `version`, timestamps, `deleted` flag.
 - Forgotten master password = unrecoverable data. Make this clear in the UI.
 - **HTTPS always**, even on LAN (Web Crypto requires a secure context; Android blocks cleartext). Container generates a self-signed cert on first start. Mobile/extension **pin the cert fingerprint** received via pairing QR.
 - Never log secrets, plaintext items, tokens or keys. Never show passwords in sync diff views.
@@ -78,6 +79,5 @@ Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens"
 
 ## Open questions
 
-- Argon2id implementation for React Native (native module) vs web (WASM) — pick libs in phase 1.
 - Device token lifetime (default: until revoked).
 - Backups of the SQLite volume (ciphertext only, so safe to copy anywhere).
