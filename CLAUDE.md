@@ -48,6 +48,16 @@ Monorepo with npm/pnpm workspaces for TS packages. Server is a separate .NET sol
 - `GET /api/vault/items?metaOnly=true`, `GET /api/vault/items/{id}`, `PUT /api/vault/items/{id}`, `DELETE /api/vault/items/{id}` (tombstone)
 - Auth: short-lived session (web) / device token (mobile, extension).
 
+## UI
+
+Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens", "Phone screens", "Web screens").
+
+- Light + dark theme, following the system setting.
+- Mobile follows OxygenOS/Material 3 idioms: large title, pill search, grouped rounded cards (radius ~22), round FAB, primary actions at the bottom. Accent = Android dynamic color (Material You) where available. Mobile uses the system font; web uses Inter.
+- Design tokens (light / dark): background `#F2F3F5` / `#101114`, card `#FFFFFF` / `#1C1D21`, field `#E4E6EA` / `#26282D`, text `#111827` / `#ECEDEF`, muted `#5B6472` / `#9AA0A8`, divider `#ECEEF1` / `#2A2C31`, fallback accent `#2453D4` / `#8AA8FF`, ok `#1F7A4D` / `#4CC38A`, warning `#8A4B00` on `#FDF1DC` / `#F5C16C` on `#3A2A10`, danger `#B42318` / `#FF9B9B`.
+- Sync diff tags: changed on both (warning), only on phone (accent), only on server (neutral), deleted on one side (danger).
+- Revealed passwords auto-hide after ~30 s. Pairing QR is always dark-on-white, also in dark mode.
+
 ## Roadmap
 
 1. `packages/core` crypto + models — verify: unit tests for encrypt/decrypt round-trip, wrong-key failure, known Argon2 vectors.
@@ -55,7 +65,7 @@ Monorepo with npm/pnpm workspaces for TS packages. Server is a separate .NET sol
 3. Web UI (register, login, vault CRUD, search-as-you-type, click to reveal) — verify: manual run against container.
 4. Mobile local vault + biometric unlock — verify: works in airplane mode on device.
 5. Pairing + sync — verify: diff scenarios (each tag), off-LAN graceful failure.
-6. UI design pass.
+6. ~~UI design~~ (done, see UI section). Implement screens per the designs within phases 3–5.
 7. Browser extension (search + copy; autofill later).
 
 ## Conventions
@@ -63,6 +73,8 @@ Monorepo with npm/pnpm workspaces for TS packages. Server is a separate .NET sol
 - TypeScript strict mode everywhere. C#: nullable enabled.
 - Crypto lives **only** in `packages/core`. No ad-hoc crypto elsewhere.
 - Keep it simple: minimal dependencies, no features beyond the current phase.
+- Current, idiomatic standards for each stack; maintainability first; small, well-separated modules.
+- Commit after each milestone (roadmap phase or meaningful sub-step), authored by the repo owner's git identity. No AI co-author/attribution trailers.
 
 ## Open questions
 
