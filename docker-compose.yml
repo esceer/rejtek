@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: server/Dockerfile
+    image: rejtek:latest
     container_name: rejtek
     restart: unless-stopped
     ports:

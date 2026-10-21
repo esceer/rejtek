@@ -113,6 +113,18 @@ docker compose up -d --build  # → https://<REJTEK_HOST>:8443
 - **First use:** open `https://<REJTEK_HOST>:8443` in a browser on the LAN. Use that address rather than `localhost`, because the pairing QR code contains the page's address. Accept the self-signed certificate after comparing its fingerprint with the one on the Pair page, then register.
 - **Image:** `server/Dockerfile` builds the web app, publishes the server and produces a small "chiseled" image with no shell that runs as non-root. The build context is the repository root.
 
+#### Low-power host (e.g. Synology NAS)
+
+The owner's NAS runs DSM 6.2 with Docker 20.10 and the old `docker-compose` v1. It is too slow to build the image itself, so build it on a development machine for the NAS's CPU and copy it over:
+
+```sh
+docker buildx build --platform linux/amd64 -f server/Dockerfile -t rejtek:latest --load .
+docker save rejtek:latest | gzip | ssh <user>@<nas> 'gunzip | /usr/local/bin/docker load'
+ssh <user>@<nas> 'cd /volume1/docker/rejtek && /usr/local/bin/docker-compose up -d'
+```
+
+The build stages run natively and cross-compile, so building an amd64 image on Apple Silicon needs no emulation. On first setup, copy `docker-compose.yml` and a filled-in `.env` into `/volume1/docker/rejtek` on the NAS. `image: rejtek:latest` in the compose file makes the NAS use the loaded image instead of building one. The data volume is `rejtek_rejtek-data`, under `/volume1/@docker/volumes/`.
+
 ### Android app (sideloaded, no Play Store)
 
 ```sh
