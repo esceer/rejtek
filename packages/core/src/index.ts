@@ -13,7 +13,13 @@ export { fromBase64, toBase64 } from './encoding';
 export { DecryptionError, InvalidFormatError } from './errors';
 export { isVaultItemData, type EncryptedVaultItem, type VaultItemData } from './vault/item';
 export { decryptItemData, encryptItemData } from './vault/item-crypto';
-export { createAccount, signIn, type UnlockedSession } from './account';
+export {
+  createAccount,
+  signIn,
+  unlockVaultKey,
+  type UnlockedSession,
+  type VaultUnlockParams,
+} from './account';
 export { createApiClient, type ApiClient, type ApiClientOptions } from './api/client';
 export type * from './api/contracts';
 export { ApiError, ServerUnreachableError } from './api/errors';

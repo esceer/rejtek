@@ -1,11 +1,4 @@
-import {
-  deriveMasterKeys,
-  fromBase64,
-  unwrapVaultKey,
-  type PairingPayload,
-  type PairResponse,
-  type Sodium,
-} from '@rejtek/core';
+import { unlockVaultKey, type PairingPayload, type PairResponse, type Sodium } from '@rejtek/core';
 import { Platform } from 'react-native';
 import { createServerApi } from './server-api';
 
@@ -27,13 +20,7 @@ export function unlockAccountVaultKey(
   paired: PairResponse,
   masterPassword: string,
 ): Uint8Array {
-  const { encryptionKey } = deriveMasterKeys(
-    sodium,
-    masterPassword,
-    fromBase64(paired.salt),
-    paired.kdf,
-  );
-  return unwrapVaultKey(sodium, paired.wrappedVaultKey, encryptionKey);
+  return unlockVaultKey(sodium, paired, masterPassword);
 }
 
 /** Shown on the web Devices page, e.g. "OnePlus 15". */

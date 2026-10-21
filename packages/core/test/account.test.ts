@@ -4,6 +4,7 @@ import {
   createAccount,
   DecryptionError,
   signIn,
+  unlockVaultKey,
   type ApiClient,
   type RegisterRequest,
 } from '../src/index';
@@ -72,5 +73,19 @@ describe('createAccount / signIn', () => {
     await expect(signIn(sodium, tricked, 'roland', 'wrong')).rejects.toBeInstanceOf(
       DecryptionError,
     );
+  });
+});
+
+describe('unlockVaultKey', () => {
+  it('unwraps the registered vault key with the master password only', async () => {
+    const server = fakeServer();
+    await createAccount(sodium, server.api, 'roland', 'correct horse', FAST_KDF);
+    const registered = server.registered();
+    if (!registered) throw new Error('not registered');
+
+    const session = await signIn(sodium, server.api, 'roland', 'correct horse');
+
+    expect(unlockVaultKey(sodium, registered, 'correct horse')).toEqual(session.vaultKey);
+    expect(() => unlockVaultKey(sodium, registered, 'wrong')).toThrow(DecryptionError);
   });
 });

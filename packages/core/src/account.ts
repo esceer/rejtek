@@ -2,6 +2,7 @@ import type { ApiClient } from './api/client';
 import { DEFAULT_KDF_PARAMS, deriveMasterKeys, generateSalt, type KdfParams } from './crypto/kdf';
 import type { Sodium } from './crypto/sodium';
 import { generateVaultKey, unwrapVaultKey, wrapVaultKey } from './crypto/vault-key';
+import type { EncryptedBlob } from './crypto/aead';
 import { fromBase64, toBase64 } from './encoding';
 
 export interface UnlockedSession {
@@ -29,6 +30,31 @@ export async function createAccount(
     authKey: toBase64(authKey),
     wrappedVaultKey: wrapVaultKey(sodium, generateVaultKey(sodium), encryptionKey),
   });
+}
+
+/** What a client needs to unlock a vault with the master password (all non-secret). */
+export interface VaultUnlockParams {
+  readonly salt: string;
+  readonly kdf: KdfParams;
+  readonly wrappedVaultKey: EncryptedBlob;
+}
+
+/**
+ * Master password → vault key, entirely on the device.
+ * @throws {DecryptionError} for a wrong master password.
+ */
+export function unlockVaultKey(
+  sodium: Sodium,
+  params: VaultUnlockParams,
+  masterPassword: string,
+): Uint8Array {
+  const { encryptionKey } = deriveMasterKeys(
+    sodium,
+    masterPassword,
+    fromBase64(params.salt),
+    params.kdf,
+  );
+  return unwrapVaultKey(sodium, params.wrappedVaultKey, encryptionKey);
 }
 
 /** @throws {ApiError} 404 (unknown user) or 401 (wrong password). */

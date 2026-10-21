@@ -1,0 +1,55 @@
+/* Rejtek design tokens for Tailwind v4 (see CLAUDE.md › UI). Import after 'tailwindcss'. */
+@theme {
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --color-page: #f5f6f8;
+  --color-surface: #ffffff;
+  --color-field: #f5f6f8;
+  --color-line: #e3e6eb;
+  --color-ink: #111827;
+  --color-muted: #5b6472;
+  --color-accent: #2453d4;
+  --color-accent-hover: #1a3fa8;
+  --color-on-accent: #ffffff;
+  --color-accent-soft: #eef2fd;
+  --color-accent-soft-ink: #1d46b8;
+  --color-ok: #1f7a4d;
+  --color-warn: #7a4200;
+  --color-warn-soft: #fdf1dc;
+  --color-danger: #b42318;
+  --color-danger-line: #f3c4c0;
+  --color-danger-soft: #fbe7e7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-page: #101114;
+    --color-surface: #1c1d21;
+    --color-field: #26282d;
+    --color-line: #2a2c31;
+    --color-ink: #ecedef;
+    --color-muted: #9aa0a8;
+    --color-accent: #8aa8ff;
+    --color-accent-hover: #b3c6ff;
+    --color-on-accent: #0b1a3d;
+    --color-accent-soft: #1b2747;
+    --color-accent-soft-ink: #b8cbff;
+    --color-ok: #4cc38a;
+    --color-warn: #f5c16c;
+    --color-warn-soft: #3a2a10;
+    --color-danger: #ff9b9b;
+    --color-danger-line: #5a2626;
+    --color-danger-soft: #3d1a1a;
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light dark;
+  }
+
+  body {
+    @apply bg-page font-sans text-ink antialiased;
+  }
+}
