@@ -54,3 +54,6 @@ obj/
 *.db
 *.db-shm
 *.db-wal
+
+# Built web app copied into the server (Docker build)
+server/src/Rejtek.Server/wwwroot/

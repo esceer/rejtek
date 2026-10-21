@@ -1,7 +1,9 @@
 # LAN-only deployment: do not forward this port on your router.
 services:
   rejtek:
-    build: ./server
+    build:
+      context: .
+      dockerfile: server/Dockerfile
     container_name: rejtek
     restart: unless-stopped
     ports:

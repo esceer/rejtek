@@ -52,6 +52,14 @@ Layout: `server/src/Rejtek.Server` (feature folders: `Features/Auth|Devices|Vaul
 - Auth: opaque bearer tokens (`Authorization: Bearer …`); only SHA-256 hashes are stored.
 - Deploy: `cp .env.example .env` (set `REJTEK_HOST` to the server's LAN IP/host name), `docker compose up -d` → `https://<host>:8443`. Data (SQLite, certificate) lives in the `rejtek-data` volume; the certificate is created on first start and must not change, or paired devices stop trusting the server.
 
+## Web app
+
+`web/`: Vite + React 19, React Router, TanStack Query (server state), Tailwind v4 (tokens in `src/styles.css`, light/dark via `prefers-color-scheme`). Layout: `app/` (providers, router, shell), `features/<area>/` (pages + hooks), `ui/` (shared components), `lib/`, `session/`. The vault key lives in React state only: reload = sign in again. Inter is self-hosted (no internet dependency on the LAN).
+
+- Dev: `cd server && dotnet run --project src/Rejtek.Server` (http://localhost:5080) + `npm run dev -w @rejtek/web` (proxies `/api`).
+- Prod: the Docker build compiles the web app into the server's `wwwroot`; the server serves it with a strict CSP (`script-src 'self' 'wasm-unsafe-eval'`).
+- `npm run check` at the repo root runs lint, format check, typecheck and tests for all TS packages.
+
 ## UI
 
 Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens", "Phone screens", "Web screens").
@@ -64,9 +72,9 @@ Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens"
 
 ## Roadmap
 
-1. `packages/core` crypto + models — verify: unit tests for encrypt/decrypt round-trip, wrong-key failure, known Argon2 vectors.
-2. Server + Docker (SQLite volume, self-signed cert) — verify: integration tests for auth, items CRUD, version conflicts; `docker compose up` serves HTTPS.
-3. Web UI (register, login, vault CRUD, search-as-you-type, click to reveal) — verify: manual run against container.
+1. ~~`packages/core` crypto + models~~ (done) — verify: unit tests for encrypt/decrypt round-trip, wrong-key and tampering failures, deterministic key derivation.
+2. ~~Server + Docker~~ (done) — verify: integration tests for auth, items CRUD, version conflicts; `docker compose up` serves HTTPS.
+3. ~~Web UI~~ (done): register, login, vault CRUD, search-as-you-type, reveal, devices, pairing QR.
 4. Mobile local vault + biometric unlock — verify: works in airplane mode on device.
 5. Pairing + sync — verify: diff scenarios (each tag), off-LAN graceful failure.
 6. ~~UI design~~ (done, see UI section). Implement screens per the designs within phases 3–5.

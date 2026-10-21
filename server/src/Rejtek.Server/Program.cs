@@ -8,6 +8,7 @@ using Rejtek.Server.Features.Devices;
 using Rejtek.Server.Features.Vault;
 using Rejtek.Server.Security;
 using Rejtek.Server.Tls;
+using Rejtek.Server.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,8 @@ using (var scope = app.Services.CreateScope())
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+app.UseSecurityHeaders();
+app.UseWebAppFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
@@ -46,6 +49,7 @@ app.MapGet("/api/health", () => TypedResults.Ok());
 app.MapAuthEndpoints();
 app.MapDeviceEndpoints();
 app.MapVaultEndpoints();
+app.MapWebApp();
 
 app.Run();
 
