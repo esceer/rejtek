@@ -26,7 +26,11 @@ export default function VaultScreen() {
   return (
     <Screen
       title="Vault"
-      subtitle={items.isSuccess ? `${String(all.length)} items` : 'Decrypting…'}
+      subtitle={
+        items.isSuccess
+          ? `${String(all.length)} ${all.length === 1 ? 'item' : 'items'}`
+          : 'Decrypting…'
+      }
       headerRight={<IconButton icon="lock-outline" label="Lock now" onPress={lock} />}
       scroll={false}
     >

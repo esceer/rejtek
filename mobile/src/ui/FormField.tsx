@@ -1,8 +1,11 @@
-import type { ReactNode } from 'react';
-import { Text, TextInput, View, type TextInputProps } from 'react-native';
+import { useRef, type ComponentRef, type ReactNode } from 'react';
+import { Pressable, Text, TextInput, View, type TextInputProps } from 'react-native';
 import { createStyles, useTheme } from '../theme/useTheme';
 
-/** Label + input inside a Group row; `trailing` holds e.g. a generate button. */
+/**
+ * Label + input inside a Group row; `trailing` holds e.g. a generate button.
+ * The whole row focuses the input, not just the text line.
+ */
 export function FormField({
   label,
   error,
@@ -17,19 +20,21 @@ export function FormField({
 }) {
   const styles = useStyles();
   const theme = useTheme();
+  const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
   return (
     <View style={styles.row}>
-      <View style={styles.main}>
+      <Pressable style={styles.main} accessible={false} onPress={() => inputRef.current?.focus()}>
         <Text style={[styles.label, error !== undefined && { color: theme.colors.danger }]}>
           {error ?? label}
         </Text>
         <TextInput
+          ref={inputRef}
           accessibilityLabel={label}
           placeholderTextColor={theme.colors.muted}
           style={[styles.input, mono && styles.mono]}
           {...input}
         />
-      </View>
+      </Pressable>
       {trailing}
     </View>
   );
