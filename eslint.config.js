@@ -15,6 +15,7 @@ export default defineConfig(
       'mobile/ios/',
       'mobile/.expo/',
       'mobile/expo-env.d.ts',
+      'extension/artifacts/',
     ],
   },
   js.configs.recommended,
@@ -26,7 +27,7 @@ export default defineConfig(
     },
   },
   {
-    files: ['{web,mobile}/**/*.{ts,tsx}'],
+    files: ['{web,mobile,extension}/**/*.{ts,tsx}'],
     extends: [reactHooks.configs.flat['recommended-latest']],
   },
   { files: ['**/*.js'], extends: [tseslint.configs.disableTypeChecked] },

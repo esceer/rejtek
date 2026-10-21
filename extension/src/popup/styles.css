@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+@import '@rejtek/theme/tokens.css';
+/* Shared components live outside this package; include their class names. */
+@source '../../../packages/ui/src';
+
+@layer base {
+  body {
+    width: 360px;
+  }
+}
