@@ -1,8 +1,5 @@
 import type { DecryptedVaultItem } from '@rejtek/core';
-import { cx } from '../../lib/cx';
-import { Avatar } from '../../ui/Avatar';
-import { Card } from '../../ui/Card';
-import { SearchIcon } from '../../ui/icons';
+import { Avatar, Card, cx, SearchIcon } from '@rejtek/ui';
 
 interface ItemListProps {
   items: readonly DecryptedVaultItem[];

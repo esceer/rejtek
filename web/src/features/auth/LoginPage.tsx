@@ -2,11 +2,9 @@ import { signIn } from '@rejtek/core';
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router';
+import { Alert, Button, TextField } from '@rejtek/ui';
 import { loadSodium } from '../../lib/sodium';
 import { useSession } from '../../session/SessionContext';
-import { Alert } from '../../ui/Alert';
-import { Button } from '../../ui/Button';
-import { TextField } from '../../ui/TextField';
 import { AuthCard, AuthLayout } from './AuthLayout';
 import { authErrorMessage } from './messages';
 

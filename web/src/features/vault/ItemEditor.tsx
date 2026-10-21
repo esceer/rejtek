@@ -1,12 +1,7 @@
 import { generatePassword, type DecryptedVaultItem, type VaultItemData } from '@rejtek/core';
 import { useId, useState } from 'react';
+import { Alert, Button, Card, RefreshIcon, StrengthMeter, TextField } from '@rejtek/ui';
 import { loadSodium } from '../../lib/sodium';
-import { Alert } from '../../ui/Alert';
-import { Button } from '../../ui/Button';
-import { Card } from '../../ui/Card';
-import { RefreshIcon } from '../../ui/icons';
-import { StrengthMeter } from '../../ui/StrengthMeter';
-import { TextField } from '../../ui/TextField';
 import { vaultErrorMessage } from './messages';
 import { useSaveItem } from './useVault';
 

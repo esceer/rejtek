@@ -1,2 +1,4 @@
 @import 'tailwindcss';
 @import '@rejtek/theme/tokens.css';
+/* Shared components live outside this app; include their class names. */
+@source '../../packages/ui/src';

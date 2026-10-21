@@ -1,12 +1,8 @@
 import { displayHost, formatDate, safeHref, type DecryptedVaultItem } from '@rejtek/core';
 import type { ReactNode } from 'react';
+import { Avatar, Button, Card, ConfirmButton, CopyIcon, EyeIcon, EyeOffIcon } from '@rejtek/ui';
 import { useAutoHide } from '../../lib/useAutoHide';
 import { useClipboard } from '../../lib/useClipboard';
-import { Avatar } from '../../ui/Avatar';
-import { Button } from '../../ui/Button';
-import { Card } from '../../ui/Card';
-import { ConfirmButton } from '../../ui/ConfirmButton';
-import { CopyIcon, EyeIcon, EyeOffIcon } from '../../ui/icons';
 import { vaultErrorMessage } from './messages';
 import { useDeleteItem } from './useVault';
 

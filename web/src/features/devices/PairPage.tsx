@@ -2,12 +2,8 @@ import { encodePairingPayload, type PairingTokenResponse } from '@rejtek/core';
 import { QRCodeSVG } from 'qrcode.react';
 import { useEffect } from 'react';
 import { Link } from 'react-router';
-import { cx } from '../../lib/cx';
+import { Alert, Button, Card, ClockIcon, cx } from '@rejtek/ui';
 import { useNow } from '../../lib/useNow';
-import { Alert } from '../../ui/Alert';
-import { Button } from '../../ui/Button';
-import { Card } from '../../ui/Card';
-import { ClockIcon } from '../../ui/icons';
 import { useCreatePairingToken } from './useDevices';
 
 const STEPS = [

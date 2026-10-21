@@ -1,5 +1,5 @@
 import { estimatePasswordStrength, PASSWORD_STRENGTH_LABELS } from '@rejtek/core';
-import { cx } from '../lib/cx';
+import { cx } from './cx';
 
 export function StrengthMeter({ password }: { password: string }) {
   const strength = estimatePasswordStrength(password);

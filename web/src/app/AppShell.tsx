@@ -1,8 +1,6 @@
 import { NavLink, Outlet } from 'react-router';
-import { cx } from '../lib/cx';
+import { Button, cx, Logo } from '@rejtek/ui';
 import { useUnlockedSession } from '../session/SessionContext';
-import { Button } from '../ui/Button';
-import { Logo } from '../ui/Logo';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cx(

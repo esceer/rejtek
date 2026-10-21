@@ -1,5 +1,5 @@
 import { avatarLetter, avatarTint } from '@rejtek/core';
-import { cx } from '../lib/cx';
+import { cx } from './cx';
 
 const sizes = {
   sm: 'size-9 rounded-[9px] text-sm',

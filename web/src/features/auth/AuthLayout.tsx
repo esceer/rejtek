@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
-import { HomeIcon } from '../../ui/icons';
-import { Logo } from '../../ui/Logo';
+import { HomeIcon, Logo } from '@rejtek/ui';
 
 export function AuthLayout({ children }: { children: ReactNode }) {
   return (

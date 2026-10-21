@@ -1,9 +1,6 @@
 import { searchItems } from '@rejtek/core';
 import { useMemo, useState } from 'react';
-import { Alert } from '../../ui/Alert';
-import { Button } from '../../ui/Button';
-import { Card } from '../../ui/Card';
-import { PlusIcon } from '../../ui/icons';
+import { Alert, Button, Card, PlusIcon } from '@rejtek/ui';
 import { ItemDetail } from './ItemDetail';
 import { ItemEditor } from './ItemEditor';
 import { ItemList } from './ItemList';

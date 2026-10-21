@@ -1,10 +1,14 @@
 import { formatDate, type Device } from '@rejtek/core';
 import { Link } from 'react-router';
-import { Alert } from '../../ui/Alert';
-import { buttonClass } from '../../ui/Button';
-import { Card } from '../../ui/Card';
-import { ConfirmButton } from '../../ui/ConfirmButton';
-import { BrowserIcon, PhoneIcon, QrIcon } from '../../ui/icons';
+import {
+  Alert,
+  BrowserIcon,
+  buttonClass,
+  Card,
+  ConfirmButton,
+  PhoneIcon,
+  QrIcon,
+} from '@rejtek/ui';
 import { useDevices, useRevokeDevice } from './useDevices';
 
 const KIND_LABELS = { phone: 'Phone app', extension: 'Browser extension' } as const;
