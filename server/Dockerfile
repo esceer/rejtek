@@ -5,9 +5,11 @@ FROM node:24-alpine AS web
 WORKDIR /repo
 COPY package.json package-lock.json tsconfig.base.json ./
 COPY packages/core/package.json packages/core/
+COPY packages/theme/package.json packages/theme/
+COPY packages/ui/package.json packages/ui/
 COPY web/package.json web/
 RUN npm ci --ignore-scripts
-COPY packages/core/ packages/core/
+COPY packages/ packages/
 COPY web/ web/
 RUN npm run build -w @rejtek/web
 
