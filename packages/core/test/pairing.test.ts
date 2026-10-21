@@ -14,8 +14,18 @@ const payload: PairingPayload = {
 };
 
 describe('pairing payload', () => {
-  it('round-trips', () => {
-    expect(parsePairingPayload(encodePairingPayload(payload))).toEqual(payload);
+  it('round-trips through a rejtek:// deep link', () => {
+    const link = encodePairingPayload(payload);
+
+    expect(link).toMatch(/^rejtek:\/\/pair\?p=[A-Za-z0-9_-]+$/);
+    expect(parsePairingPayload(link)).toEqual(payload);
+  });
+
+  it('accepts the bare link parameter and raw JSON', () => {
+    const param = encodePairingPayload(payload).split('p=')[1] ?? '';
+
+    expect(parsePairingPayload(param)).toEqual(payload);
+    expect(parsePairingPayload(JSON.stringify(payload))).toEqual(payload);
   });
 
   it.each([

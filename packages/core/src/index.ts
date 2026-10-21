@@ -26,3 +26,13 @@ export {
 } from './password-strength';
 export { DEFAULT_PASSWORD_LENGTH, generatePassword } from './password-generator';
 export { avatarLetter, avatarTint, displayHost, formatDate, safeHref } from './display';
+export {
+  canPull,
+  canPush,
+  pullAll,
+  pullItem,
+  pushAll,
+  pushItem,
+  type LocalSyncStore,
+} from './sync/actions';
+export { diffVaults, type DiffKind, type LocalSyncItem, type SyncDifference } from './sync/diff';
