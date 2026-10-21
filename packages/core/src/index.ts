@@ -19,3 +19,8 @@ export type * from './api/contracts.js';
 export { ApiError, ServerUnreachableError } from './api/errors.js';
 export { encodePairingPayload, parsePairingPayload, type PairingPayload } from './pairing.js';
 export { decryptVault, searchItems, type DecryptedVaultItem } from './vault/vault.js';
+export {
+  estimatePasswordStrength,
+  PASSWORD_STRENGTH_LABELS,
+  type PasswordStrength,
+} from './password-strength.js';
