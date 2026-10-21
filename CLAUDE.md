@@ -9,7 +9,7 @@ Personal password manager. A server runs as a Docker container on the home LAN a
 | `server/`        | C# ASP.NET Core (Minimal APIs), EF Core, SQLite | Users, devices/pairing, encrypted vault storage, serves the web app                      |
 | `web/`           | React + TypeScript (Vite)                       | LAN web UI: register/login, vault CRUD + search, QR pairing, device management           |
 | `mobile/`        | React Native (Expo, dev build) + TypeScript     | Android first, iOS later. Offline vault, biometric unlock, sync                          |
-| `extension/`     | React + TypeScript, WebExtension (Manifest V3)  | Last phase. Chrome + Firefox. Search/copy credentials from server on LAN                 |
+| `extension/`     | React + TypeScript, WebExtension (Manifest V3)  | Firefox only (for now). Search/copy credentials, paired like a device                    |
 | `packages/core/` | TypeScript                                      | Shared: crypto, data models, sync/diff logic, API client. Used by web, mobile, extension |
 
 Monorepo with npm workspaces for TS packages. Server is a separate .NET solution.
@@ -73,6 +73,17 @@ Layout: `server/src/Rejtek.Server` (feature folders: `Features/Auth|Devices|Vaul
 - Sync (`core/src/sync`): diff by id/version/syncedVersion, names decrypted for display only. Push sends the diffed server version as `baseVersion` (409 on concurrent change). Bulk pull/push never delete one-sided items.
 - Dev: `npm run android -w @rejtek/mobile` (build + install), `npm start -w @rejtek/mobile` (Metro, never with `CI=1`: that disables reloads). Emulator AVD: `OnePlus_15`; it reaches the host as `10.0.2.2` (e.g. Docker server at `https://10.0.2.2:8443`).
 
+## Firefox extension
+
+`extension/`: Manifest V3 popup (Vite, React, TanStack Query, `@rejtek/ui`), plus a tiny background script for auto-lock. Firefox only for now (`browser.*` APIs, no polyfill).
+
+- Connect: paste the pairing link from the web Pair page (“Copy link for the browser extension”) → host permission requested for that server origin only → paired as a device (`kind: extension`, revocable on the web Devices page).
+- Unlock: master password → vault key, offline (salt, KDF params and wrapped key stored at pairing). The vault key lives only in `storage.session` (memory, gone when Firefox closes); auto-lock after 15 minutes without use. `storage.local` holds the connection (incl. device token) and the last encrypted item list for offline use.
+- TLS: extensions cannot pin certificates; the user accepts the server's self-signed certificate once in Firefox (compare the fingerprint), after which Firefox trusts exactly that certificate.
+- Suggests items for the active tab's site (`activeTab`), copies username/password; clipboard cleared after 30 s while the popup stays open.
+- Dev: `npm run build -w @rejtek/extension` → load `extension/dist/manifest.json` via `about:debugging` → This Firefox → Load Temporary Add-on. `npm run lint:ext -w @rejtek/extension` runs Mozilla's web-ext lint; `npm run package -w @rejtek/extension` builds the zip.
+- Shared web UI lives in `packages/ui` (components) and `packages/theme` (Tailwind tokens); apps add `@source` for `packages/ui/src`.
+
 ## UI
 
 Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens", "Phone screens", "Web screens").
@@ -91,7 +102,7 @@ Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens"
 4. ~~Mobile local vault + biometric unlock~~ (done; verified on the OnePlus_15 emulator: unlock, add/edit/delete, search, reveal auto-hide, dark mode, auto-lock).
 5. ~~Pairing + sync~~ (done; verified on the emulator against the Docker server: pairing, push/pull, in sync, offline, certificate change, disconnect).
 6. ~~UI design~~ (done, see UI section). Implement screens per the designs within phases 3–5.
-7. Browser extension (search + copy; autofill later).
+7. ~~Firefox extension~~ (done: pair, unlock, search, copy, offline copy). Next: autofill; Chrome later.
 
 ## Conventions
 
