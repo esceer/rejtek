@@ -85,7 +85,7 @@ Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens"
 1. ~~`packages/core` crypto + models~~ (done) — verify: unit tests for encrypt/decrypt round-trip, wrong-key and tampering failures, deterministic key derivation.
 2. ~~Server + Docker~~ (done) — verify: integration tests for auth, items CRUD, version conflicts; `docker compose up` serves HTTPS.
 3. ~~Web UI~~ (done): register, login, vault CRUD, search-as-you-type, reveal, devices, pairing QR.
-4. Mobile local vault + biometric unlock — verify: works in airplane mode on device. (in progress)
+4. ~~Mobile local vault + biometric unlock~~ (done; verified on the OnePlus_15 emulator: unlock, add/edit/delete, search, reveal auto-hide, dark mode, auto-lock).
 5. Pairing + sync — verify: diff scenarios (each tag), off-LAN graceful failure.
 6. ~~UI design~~ (done, see UI section). Implement screens per the designs within phases 3–5.
 7. Browser extension (search + copy; autofill later).
