@@ -1,2 +1,6 @@
 package-lock.json
 server/
+mobile/android/
+mobile/ios/
+mobile/.expo/
+mobile/expo-env.d.ts

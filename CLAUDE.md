@@ -60,6 +60,16 @@ Layout: `server/src/Rejtek.Server` (feature folders: `Features/Auth|Devices|Vaul
 - Prod: the Docker build compiles the web app into the server's `wwwroot`; the server serves it with a strict CSP (`script-src 'self' 'wasm-unsafe-eval'`).
 - `npm run check` at the repo root runs lint, format check, typecheck and tests for all TS packages.
 
+## Mobile app
+
+`mobile/`: Expo SDK 58 (React Native 0.88, dev build: native libsodium), Expo Router (routes in `src/app/`, everything else outside), TanStack Query, `StyleSheet` + theme tokens (`src/theme`). Always add native deps with `npx expo install`; `android/` is generated (`npx expo run:android`), never edit it.
+
+- Local vault: SQLite (`expo-sqlite`) holds ciphertext only; schema migrations via `PRAGMA user_version`. Local edits bump `version`; unsynced while `version > synced_version`; never-synced deletes are dropped, synced ones become tombstones.
+- Vault key: random, in Keystore-backed `expo-secure-store` (this device only). Unlock = system prompt via `expo-local-authentication` (biometric or device PIN/pattern); not biometric-bound, so new fingerprints never make the vault unreadable. A device screen lock is required.
+- Auto-lock after 60 s in the background; lock clears decrypted data from memory. Clipboard copies are marked sensitive and cleared after 30 s. Screenshots are blocked in release builds (`FLAG_SECURE`), allowed in dev builds. `allowBackup: false`.
+- Accent: Android 12+ Material You system colours via `PlatformColor`, fallback tokens elsewhere.
+- Dev: `npm run android -w @rejtek/mobile` (build + install), `npm start -w @rejtek/mobile` (Metro). Emulator AVD: `OnePlus_15`.
+
 ## UI
 
 Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens", "Phone screens", "Web screens").
@@ -75,7 +85,7 @@ Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens"
 1. ~~`packages/core` crypto + models~~ (done) — verify: unit tests for encrypt/decrypt round-trip, wrong-key and tampering failures, deterministic key derivation.
 2. ~~Server + Docker~~ (done) — verify: integration tests for auth, items CRUD, version conflicts; `docker compose up` serves HTTPS.
 3. ~~Web UI~~ (done): register, login, vault CRUD, search-as-you-type, reveal, devices, pairing QR.
-4. Mobile local vault + biometric unlock — verify: works in airplane mode on device.
+4. Mobile local vault + biometric unlock — verify: works in airplane mode on device. (in progress)
 5. Pairing + sync — verify: diff scenarios (each tag), off-LAN graceful failure.
 6. ~~UI design~~ (done, see UI section). Implement screens per the designs within phases 3–5.
 7. Browser extension (search + copy; autofill later).
