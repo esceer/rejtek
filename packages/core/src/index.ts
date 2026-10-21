@@ -24,3 +24,4 @@ export {
   PASSWORD_STRENGTH_LABELS,
   type PasswordStrength,
 } from './password-strength.js';
+export { DEFAULT_PASSWORD_LENGTH, generatePassword } from './password-generator.js';

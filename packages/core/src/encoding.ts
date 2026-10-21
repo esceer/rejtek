@@ -13,7 +13,9 @@ export function fromBase64(value: string): Uint8Array {
 }
 
 export function utf8Encode(value: string): Uint8Array {
-  return new TextEncoder().encode(value);
+  // Copy into this realm's Uint8Array: some environments (e.g. jsdom) hand back a foreign-realm
+  // array that libsodium's `instanceof` check rejects.
+  return Uint8Array.from(new TextEncoder().encode(value));
 }
 
 export function utf8Decode(bytes: Uint8Array): string {

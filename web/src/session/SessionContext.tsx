@@ -17,12 +17,15 @@ const SessionContext = createContext<SessionContextValue | null>(null);
 export function SessionProvider({
   children,
   createApi = createApiClient,
+  initialSession = null,
 }: {
   children: ReactNode;
   /** Injectable for tests. */
   createApi?: typeof createApiClient;
+  /** Injectable for tests. */
+  initialSession?: UnlockedSession | null;
 }) {
-  const [session, setSession] = useState<UnlockedSession | null>(null);
+  const [session, setSession] = useState<UnlockedSession | null>(initialSession);
   const token = session?.token ?? null;
   const api = useMemo(() => createApi({ baseUrl: '', getToken: () => token }), [createApi, token]);
 
