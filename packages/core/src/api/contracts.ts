@@ -1,7 +1,7 @@
 // Wire types of the Rejtek server API (JSON, camelCase). Binary values are Base64.
-import type { EncryptedBlob } from '../crypto/aead.js';
-import type { KdfParams } from '../crypto/kdf.js';
-import type { EncryptedVaultItem } from '../vault/item.js';
+import type { EncryptedBlob } from '../crypto/aead';
+import type { KdfParams } from '../crypto/kdf';
+import type { EncryptedVaultItem } from '../vault/item';
 
 export interface PreloginResponse {
   readonly salt: string;

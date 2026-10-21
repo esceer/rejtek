@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ApiError, createApiClient, ServerUnreachableError } from '../src/index.js';
+import { ApiError, createApiClient, ServerUnreachableError } from '../src/index';
 
 function fakeFetch(status: number, body?: unknown) {
   return vi.fn<typeof fetch>(() =>

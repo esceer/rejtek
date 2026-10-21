@@ -6,8 +6,8 @@ import {
   generateVaultKey,
   InvalidFormatError,
   type VaultItemData,
-} from '../src/index.js';
-import { sodium } from './support/sodium.js';
+} from '../src/index';
+import { sodium } from './support/sodium';
 
 const vaultKey = generateVaultKey(sodium);
 const netflix: VaultItemData = {

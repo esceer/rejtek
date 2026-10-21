@@ -1,4 +1,4 @@
-import { InvalidFormatError } from './errors.js';
+import { InvalidFormatError } from './errors';
 
 /** Contents of the pairing QR code shown by the web UI and scanned by a device. */
 export interface PairingPayload {

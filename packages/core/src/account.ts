@@ -1,13 +1,8 @@
-import type { ApiClient } from './api/client.js';
-import {
-  DEFAULT_KDF_PARAMS,
-  deriveMasterKeys,
-  generateSalt,
-  type KdfParams,
-} from './crypto/kdf.js';
-import type { Sodium } from './crypto/sodium.js';
-import { generateVaultKey, unwrapVaultKey, wrapVaultKey } from './crypto/vault-key.js';
-import { fromBase64, toBase64 } from './encoding.js';
+import type { ApiClient } from './api/client';
+import { DEFAULT_KDF_PARAMS, deriveMasterKeys, generateSalt, type KdfParams } from './crypto/kdf';
+import type { Sodium } from './crypto/sodium';
+import { generateVaultKey, unwrapVaultKey, wrapVaultKey } from './crypto/vault-key';
+import { fromBase64, toBase64 } from './encoding';
 
 export interface UnlockedSession {
   readonly username: string;

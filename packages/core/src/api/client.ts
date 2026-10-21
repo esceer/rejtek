@@ -1,4 +1,4 @@
-import type { EncryptedVaultItem } from '../vault/item.js';
+import type { EncryptedVaultItem } from '../vault/item';
 import type {
   Device,
   LoginResponse,
@@ -8,8 +8,8 @@ import type {
   PreloginResponse,
   PutItemRequest,
   RegisterRequest,
-} from './contracts.js';
-import { ApiError, ServerUnreachableError } from './errors.js';
+} from './contracts';
+import { ApiError, ServerUnreachableError } from './errors';
 
 export interface ApiClientOptions {
   /** Server origin, e.g. `https://192.168.1.20:8443`; empty string for same-origin (web). */

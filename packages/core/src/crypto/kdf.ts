@@ -1,4 +1,4 @@
-import type { Sodium } from './sodium.js';
+import type { Sodium } from './sodium';
 
 export interface KdfParams {
   readonly algorithm: 'argon2id';

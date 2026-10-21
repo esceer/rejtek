@@ -1,5 +1,5 @@
 import sodium from 'libsodium-wrappers-sumo';
-import type { KdfParams } from '../../src/index.js';
+import type { KdfParams } from '../../src/index';
 
 await sodium.ready;
 

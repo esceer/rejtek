@@ -1,4 +1,4 @@
-import type { DecryptedVaultItem } from '@rejtek/core';
+import { displayHost, formatDate, safeHref, type DecryptedVaultItem } from '@rejtek/core';
 import type { ReactNode } from 'react';
 import { useAutoHide } from '../../lib/useAutoHide';
 import { useClipboard } from '../../lib/useClipboard';
@@ -9,7 +9,6 @@ import { ConfirmButton } from '../../ui/ConfirmButton';
 import { CopyIcon, EyeIcon, EyeOffIcon } from '../../ui/icons';
 import { vaultErrorMessage } from './messages';
 import { useDeleteItem } from './useVault';
-import { displayHost, formatDate, safeHref } from './vault-format';
 
 const REVEAL_SECONDS = 30;
 

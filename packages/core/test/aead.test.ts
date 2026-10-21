@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { DecryptionError, decrypt, encrypt, fromBase64, toBase64 } from '../src/index.js';
-import { sodium } from './support/sodium.js';
+import { DecryptionError, decrypt, encrypt, fromBase64, toBase64 } from '../src/index';
+import { sodium } from './support/sodium';
 
 const key = sodium.randombytes_buf(32);
 const plaintext = new TextEncoder().encode('secret');

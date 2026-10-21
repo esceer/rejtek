@@ -1,5 +1,5 @@
-import { decrypt, encrypt, KEY_BYTES, type EncryptedBlob } from './aead.js';
-import type { Sodium } from './sodium.js';
+import { decrypt, encrypt, KEY_BYTES, type EncryptedBlob } from './aead';
+import type { Sodium } from './sodium';
 
 const VAULT_KEY_CONTEXT = 'rejtek:vault-key:v1';
 

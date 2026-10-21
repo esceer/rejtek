@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { deriveMasterKeys, generateSalt } from '../src/index.js';
-import { FAST_KDF, sodium } from './support/sodium.js';
+import { deriveMasterKeys, generateSalt } from '../src/index';
+import { FAST_KDF, sodium } from './support/sodium';
 
 describe('deriveMasterKeys', () => {
   const salt = generateSalt(sodium);

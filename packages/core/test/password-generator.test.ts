@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { generatePassword } from '../src/index.js';
-import { sodium } from './support/sodium.js';
+import { generatePassword } from '../src/index';
+import { sodium } from './support/sodium';
 
 describe('generatePassword', () => {
   it('has the requested length and every character class', () => {

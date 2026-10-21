@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { estimatePasswordStrength } from '../src/index.js';
+import { estimatePasswordStrength } from '../src/index';
 
 describe('estimatePasswordStrength', () => {
   it.each([

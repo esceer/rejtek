@@ -1,4 +1,4 @@
-import type { EncryptedBlob } from '../crypto/aead.js';
+import type { EncryptedBlob } from '../crypto/aead';
 
 /** Decrypted content of a vault item. Exists only in client memory. */
 export interface VaultItemData {

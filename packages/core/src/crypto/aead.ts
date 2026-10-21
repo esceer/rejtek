@@ -1,6 +1,6 @@
-import { fromBase64, toBase64 } from '../encoding.js';
-import { DecryptionError } from '../errors.js';
-import type { Sodium } from './sodium.js';
+import { fromBase64, toBase64 } from '../encoding';
+import { DecryptionError } from '../errors';
+import type { Sodium } from './sodium';
 
 export const KEY_BYTES = 32;
 const NONCE_BYTES = 24;

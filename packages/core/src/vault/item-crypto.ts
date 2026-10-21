@@ -1,8 +1,8 @@
-import { decrypt, encrypt, type EncryptedBlob } from '../crypto/aead.js';
-import type { Sodium } from '../crypto/sodium.js';
-import { utf8Decode, utf8Encode } from '../encoding.js';
-import { InvalidFormatError } from '../errors.js';
-import { isVaultItemData, type VaultItemData } from './item.js';
+import { decrypt, encrypt, type EncryptedBlob } from '../crypto/aead';
+import type { Sodium } from '../crypto/sodium';
+import { utf8Decode, utf8Encode } from '../encoding';
+import { InvalidFormatError } from '../errors';
+import { isVaultItemData, type VaultItemData } from './item';
 
 // Binding the item id prevents swapping ciphertexts between items.
 const itemContext = (itemId: string) => `rejtek:item:v1:${itemId}`;

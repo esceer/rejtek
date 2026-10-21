@@ -6,8 +6,8 @@ import {
   generateVaultKey,
   unwrapVaultKey,
   wrapVaultKey,
-} from '../src/index.js';
-import { FAST_KDF, sodium } from './support/sodium.js';
+} from '../src/index';
+import { FAST_KDF, sodium } from './support/sodium';
 
 describe('vault key wrapping', () => {
   const salt = generateSalt(sodium);

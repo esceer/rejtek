@@ -1,6 +1,6 @@
-import type { Sodium } from '../crypto/sodium.js';
-import { decryptItemData } from './item-crypto.js';
-import type { EncryptedVaultItem, VaultItemData } from './item.js';
+import type { Sodium } from '../crypto/sodium';
+import { decryptItemData } from './item-crypto';
+import type { EncryptedVaultItem, VaultItemData } from './item';
 
 /** A live (non-deleted) item, decrypted for display. */
 export interface DecryptedVaultItem {

@@ -4,7 +4,7 @@ import {
   InvalidFormatError,
   parsePairingPayload,
   type PairingPayload,
-} from '../src/index.js';
+} from '../src/index';
 
 const payload: PairingPayload = {
   v: 1,

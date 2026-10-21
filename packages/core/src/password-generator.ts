@@ -1,4 +1,4 @@
-import type { Sodium } from './crypto/sodium.js';
+import type { Sodium } from './crypto/sodium';
 
 const CLASSES = [
   'abcdefghijkmnopqrstuvwxyz', // no l: easily confused with 1/I

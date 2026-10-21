@@ -6,8 +6,8 @@ import {
   signIn,
   type ApiClient,
   type RegisterRequest,
-} from '../src/index.js';
-import { FAST_KDF, sodium } from './support/sodium.js';
+} from '../src/index';
+import { FAST_KDF, sodium } from './support/sodium';
 
 /** Minimal in-memory stand-in for the server's auth endpoints. */
 function fakeServer() {
