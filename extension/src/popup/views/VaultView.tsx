@@ -11,6 +11,7 @@ import { Alert, Avatar, Button, ConfirmButton, CopyIcon, LockIcon, SearchIcon } 
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { scheduleAutoLock } from '../../lib/auto-lock';
+import { fillInActiveTab, type FillOutcome } from '../../lib/autofill/autofill';
 import { currentSiteHost, itemsForSite } from '../../lib/current-site';
 import { loadSodium } from '../../lib/sodium';
 import { extensionStorage, type Connection } from '../../lib/storage';
@@ -61,6 +62,24 @@ export function VaultView({
   );
   const revoked = vault.error instanceof ApiError && vault.error.status === 401;
 
+  const fill = useMutation({
+    mutationFn: (item: DecryptedVaultItem) => {
+      scheduleAutoLock();
+      return fillInActiveTab(item);
+    },
+    onSuccess: (outcome) => {
+      if (outcome === 'filled') {
+        window.close();
+      }
+    },
+  });
+  const fillProblem =
+    fill.data && fill.data !== 'filled'
+      ? FILL_MESSAGES[fill.data]
+      : fill.isError
+        ? 'Could not fill this page.'
+        : null;
+
   return (
     <PopupShell
       actions={
@@ -99,8 +118,15 @@ export function VaultView({
         <Alert tone="danger">Cannot reach your server, and there is no saved copy yet.</Alert>
       )}
 
+      {fillProblem && <Alert tone="warn">{fillProblem}</Alert>}
       {suggested.length > 0 && (
-        <Section title={`Suggested for ${site.data ?? ''}`} items={suggested} />
+        <Section
+          title={`Suggested for ${site.data ?? ''}`}
+          items={suggested}
+          onFill={(item) => {
+            fill.mutate(item);
+          }}
+        />
       )}
       {vault.isSuccess && (
         <Section
@@ -132,10 +158,13 @@ function Section({
   title,
   items,
   empty,
+  onFill,
 }: {
   title: string;
   items: DecryptedVaultItem[];
   empty?: string;
+  /** Only for logins that belong to the open site. */
+  onFill?: (item: DecryptedVaultItem) => void;
 }) {
   return (
     <section>
@@ -145,7 +174,17 @@ function Section({
       ) : (
         <ul className="overflow-hidden rounded-[14px] border border-line bg-surface">
           {items.map((item) => (
-            <ItemRow key={item.id} item={item} />
+            <ItemRow
+              key={item.id}
+              item={item}
+              {...(onFill
+                ? {
+                    onFill: () => {
+                      onFill(item);
+                    },
+                  }
+                : {})}
+            />
           ))}
         </ul>
       )}
@@ -153,7 +192,7 @@ function Section({
   );
 }
 
-function ItemRow({ item }: { item: DecryptedVaultItem }) {
+function ItemRow({ item, onFill }: { item: DecryptedVaultItem; onFill?: () => void }) {
   const { copy, copied } = useCopy();
   const { name, username, password } = item.data;
   return (
@@ -177,6 +216,11 @@ function ItemRow({ item }: { item: DecryptedVaultItem }) {
         copied={copied === 'password'}
         onClick={() => void copy('password', password)}
       />
+      {onFill && (
+        <Button size="sm" aria-label={`Fill ${name} into this page`} onClick={onFill}>
+          Fill
+        </Button>
+      )}
     </li>
   );
 }
@@ -205,6 +249,13 @@ function CopyButton({
     </Button>
   );
 }
+
+const FILL_MESSAGES: Record<Exclude<FillOutcome, 'filled'>, string> = {
+  'no-login-form': 'No login form found on this page.',
+  'other-site': 'This login belongs to a different site, so it was not filled.',
+  'insecure-page': 'Not filled: this page is not secure (http) but the login is for https.',
+  'not-allowed': 'Firefox does not allow filling this page.',
+};
 
 /** Fresh from the server when reachable (and saved for later), else the saved copy. */
 async function loadItems(api: ApiClient, vaultKey: Uint8Array): Promise<LoadedItems> {

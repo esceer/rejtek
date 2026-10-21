@@ -117,6 +117,34 @@ describe('popup', () => {
     expect(screen.getAllByText('Spotify').length).toBeGreaterThan(0);
   });
 
+  it('offers Fill only for logins of the open site and closes after filling', async () => {
+    await extensionStorage.setConnection({ url: 'https://192.168.1.20:8443', ...paired });
+    await extensionStorage.setVaultKey(vaultKey);
+    const executeScript = vi.mocked(browser.scripting.executeScript);
+    executeScript
+      .mockResolvedValueOnce([
+        {
+          frameId: 0,
+          result: { hostname: 'www.netflix.com', protocol: 'https:', hasLoginForm: true },
+        },
+      ])
+      .mockResolvedValueOnce([{ frameId: 0, result: { username: true, password: true } }]);
+    const close = vi.spyOn(window, 'close').mockImplementation(() => undefined);
+    const { createApi } = fakeApi();
+    render(<App createApi={createApi} />);
+
+    const fillButtons = await screen.findAllByRole('button', { name: /^Fill .* into this page$/ });
+    expect(fillButtons.map((b) => b.getAttribute('aria-label'))).toEqual([
+      'Fill Netflix into this page',
+    ]);
+    const [fillButton] = fillButtons;
+    if (!fillButton) throw new Error('no Fill button');
+    await userEvent.click(fillButton);
+
+    expect(executeScript).toHaveBeenCalledTimes(2);
+    expect(close).toHaveBeenCalled();
+  });
+
   it('forgets the vault key when locked', async () => {
     await extensionStorage.setConnection({ url: 'https://192.168.1.20:8443', ...paired });
     await extensionStorage.setVaultKey(vaultKey);

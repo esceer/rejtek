@@ -81,6 +81,7 @@ Layout: `server/src/Rejtek.Server` (feature folders: `Features/Auth|Devices|Vaul
 - Unlock: master password → vault key, offline (salt, KDF params and wrapped key stored at pairing). The vault key lives only in `storage.session` (memory, gone when Firefox closes); auto-lock after 15 minutes without use. `storage.local` holds the connection (incl. device token) and the last encrypted item list for offline use.
 - TLS: extensions cannot pin certificates; the user accepts the server's self-signed certificate once in Firefox (compare the fingerprint), after which Firefox trusts exactly that certificate.
 - Suggests items for the active tab's site (`activeTab`), copies username/password; clipboard cleared after 30 s while the popup stays open.
+- Autofill: “Fill” button on suggested logins only (no automatic filling, no content scripts on all sites). `lib/autofill`: site + protocol check (no https login into an http page), a credential-free probe of all frames, then credentials go to one same-site frame with a visible login form. Injected functions (`page-scripts.ts`) must stay self-contained (Firefox serialises their source).
 - Dev: `npm run build -w @rejtek/extension` → load `extension/dist/manifest.json` via `about:debugging` → This Firefox → Load Temporary Add-on. `npm run lint:ext -w @rejtek/extension` runs Mozilla's web-ext lint; `npm run package -w @rejtek/extension` builds the zip.
 - Shared web UI lives in `packages/ui` (components) and `packages/theme` (Tailwind tokens); apps add `@source` for `packages/ui/src`.
 
@@ -102,7 +103,7 @@ Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens"
 4. ~~Mobile local vault + biometric unlock~~ (done; verified on the OnePlus_15 emulator: unlock, add/edit/delete, search, reveal auto-hide, dark mode, auto-lock).
 5. ~~Pairing + sync~~ (done; verified on the emulator against the Docker server: pairing, push/pull, in sync, offline, certificate change, disconnect).
 6. ~~UI design~~ (done, see UI section). Implement screens per the designs within phases 3–5.
-7. ~~Firefox extension~~ (done: pair, unlock, search, copy, offline copy). Next: autofill; Chrome later.
+7. ~~Firefox extension~~ (done: pair, unlock, search, copy, fill, offline copy). Later: Chrome.
 
 ## Conventions
 

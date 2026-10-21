@@ -39,8 +39,13 @@ export function createFakeBrowser(activeTabUrl = 'https://www.netflix.com/browse
     permissions: { request: vi.fn(() => Promise.resolve(true)) },
     runtime: { getPlatformInfo: () => Promise.resolve({ os: 'mac' }) },
     tabs: {
-      query: () => Promise.resolve([{ url: activeTabUrl }]),
+      query: () => Promise.resolve([{ id: 7, url: activeTabUrl }]),
       create: vi.fn(),
+    },
+    scripting: {
+      executeScript: vi.fn<
+        (injection: unknown) => Promise<{ frameId: number; result?: unknown }[]>
+      >(() => Promise.resolve([])),
     },
   };
 }
