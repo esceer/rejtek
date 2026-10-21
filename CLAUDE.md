@@ -20,7 +20,7 @@ Monorepo with npm workspaces for TS packages. Server is a separate .NET solution
 - Crypto library: **libsodium** everywhere (`libsodium-wrappers-sumo` on web/extension, `react-native-libsodium` on mobile), injected into `packages/core` via the `Sodium` interface.
 - Master password (NFKC-normalised) + per-user salt → **Argon2id** → master key → `crypto_kdf` splits into:
   - `encryptionKey`: wraps the random 256-bit **vault key** (XChaCha20-Poly1305).
-  - `authKey`: sent to server for login; server stores only its hash (Argon2id).
+  - `authKey`: sent to server for login; server stores only a salted PBKDF2-SHA256 hash (input is already a 256-bit Argon2id output).
 - Each vault item encrypted with the vault key (XChaCha20-Poly1305, random 24-byte nonce, item id as associated data). Item name/URL/username/password/notes are all encrypted; server sees only `id`, `version`, timestamps, `deleted` flag.
 - Forgotten master password = unrecoverable data. Make this clear in the UI.
 - **HTTPS always**, even on LAN (Web Crypto requires a secure context; Android blocks cleartext). Container generates a self-signed cert on first start. Mobile/extension **pin the cert fingerprint** received via pairing QR.
@@ -42,12 +42,14 @@ Monorepo with npm workspaces for TS packages. Server is a separate .NET solution
 - Sync flow: fetch server item metadata → compare with local → show **"In sync"** or count + list of differing item names (decrypted locally), each tagged `local only` / `server only` / `changed on both` / `deleted on one side`.
 - Actions: **Push all**, **Pull all**, or per-item push/pull. Push = server copy overwritten; pull = local copy overwritten. Server rejects a push if its version moved since the diff (optimistic concurrency) → re-diff.
 
-## Server API (initial sketch)
+## Server API
 
-- `POST /api/auth/prelogin` (salt + KDF params), `POST /api/auth/register`, `POST /api/auth/login`
-- `POST /api/devices/pairing-token`, `POST /api/devices/pair`, `GET/DELETE /api/devices`
-- `GET /api/vault/items?metaOnly=true`, `GET /api/vault/items/{id}`, `PUT /api/vault/items/{id}`, `DELETE /api/vault/items/{id}` (tombstone)
-- Auth: short-lived session (web) / device token (mobile, extension).
+Layout: `server/src/Rejtek.Server` (feature folders: `Features/Auth|Devices|Vault`, `Data`, `Security`, `Tls`), tests in `server/tests`. .NET 10 Minimal APIs, EF Core SQLite + migrations (applied on startup), built-in validation, xUnit v3 on Microsoft Testing Platform. Run `dotnet test` / `dotnet format --verify-no-changes` in `server/`.
+
+- `POST /api/auth/prelogin` → salt + KDF params; `POST /api/auth/register`; `POST /api/auth/login` → web session token (12 h) + wrapped vault key; `POST /api/auth/logout`. Rate-limited per IP.
+- `POST /api/devices/pairing-tokens` → one-time token (5 min) + cert fingerprint for the QR; `POST /api/devices/pair` (anonymous) → device token (valid until revoked) + salt, KDF params, wrapped vault key; `GET /api/devices`; `DELETE /api/devices/{id}`.
+- `GET /api/vault/items`, `GET /api/vault/items/{id}`, `PUT /api/vault/items/{id}` `{baseVersion, updatedAt, data}`, `DELETE /api/vault/items/{id}?baseVersion=n` (tombstone). Version mismatch → `409 {current}`.
+- Auth: opaque bearer tokens (`Authorization: Bearer …`); only SHA-256 hashes are stored.
 
 ## UI
 

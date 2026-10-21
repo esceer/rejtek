@@ -49,3 +49,8 @@ obj/
 .env.*
 !.env.example
 .DS_Store
+
+# Local databases
+*.db
+*.db-shm
+*.db-wal
