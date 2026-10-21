@@ -1,6 +1,6 @@
 # Rejtek — self-hosted LAN password manager
 
-Personal password manager. A server runs as a Docker container on the home LAN and is **never exposed to the internet**. A mobile app works fully offline and syncs **manually** with the server when on home Wi-Fi. Small user base (owner + family); app-store release possible later.
+Personal password manager. A server runs as a Docker container on the home LAN and is **never exposed to the internet**. A mobile app works fully offline and syncs **manually** with the server when on home Wi-Fi. Small user base (owner + family); app-store release possible later. Human-facing setup, build and deploy steps live in `README.md`.
 
 ## Components
 
@@ -25,7 +25,7 @@ Monorepo with npm workspaces for TS packages. Server is a separate .NET solution
 - Forgotten master password = unrecoverable data. Make this clear in the UI.
 - **HTTPS always**, even on LAN (Web Crypto requires a secure context; Android blocks cleartext). Container generates a self-signed cert on first start. Mobile/extension **pin the cert fingerprint** received via pairing QR.
 - Never log secrets, plaintext items, tokens or keys. Never show passwords in sync diff views.
-- Mobile: vault key stored in Android Keystore / iOS Keychain behind biometric/device-credential auth. Passwords revealed only after biometric prompt. Clipboard auto-clear after copy.
+- Mobile: vault key stored in Android Keystore / iOS Keychain; the app opens only after a biometric/device-credential prompt. Clipboard auto-clear after copy.
 - Registration is open to anyone on the LAN (owner's choice). Rate-limit login/registration.
 
 ## Users & devices
@@ -37,7 +37,7 @@ Monorepo with npm workspaces for TS packages. Server is a separate .NET solution
 
 ## Sync
 
-- Manual only, triggered by user. Server unreachable (off-LAN, timeout ~3s) → friendly message, app keeps working. Never block the UI.
+- Manual only, triggered by user. Server unreachable (off-LAN, 5 s timeout) → friendly message, app keeps working. Never block the UI.
 - Each item: `id` (UUID), `version` (int, incremented on change), `updatedAt`, `deleted` (tombstone).
 - Sync flow: fetch server item metadata → compare with local → show **"In sync"** or count + list of differing item names (decrypted locally), each tagged `local only` / `server only` / `changed on both` / `deleted on one side`.
 - Actions: **Push all**, **Pull all**, or per-item push/pull. Push = server copy overwritten; pull = local copy overwritten. Server rejects a push if its version moved since the diff (optimistic concurrency) → re-diff.
@@ -51,10 +51,11 @@ Layout: `server/src/Rejtek.Server` (feature folders: `Features/Auth|Devices|Vaul
 - `GET /api/vault/items`, `GET /api/vault/items/{id}`, `PUT /api/vault/items/{id}` `{baseVersion, updatedAt, data}`, `DELETE /api/vault/items/{id}?baseVersion=n` (tombstone). Version mismatch → `409 {current}`.
 - Auth: opaque bearer tokens (`Authorization: Bearer …`); only SHA-256 hashes are stored.
 - Deploy: `cp .env.example .env` (set `REJTEK_HOST` to the server's LAN IP/host name), `docker compose up -d` → `https://<host>:8443`. Data (SQLite, certificate) lives in the `rejtek-data` volume; the certificate is created on first start and must not change, or paired devices stop trusting the server.
+- Docker build (`server/Dockerfile`, context = repo root) copies only the workspaces the web app needs (`packages/core|theme|ui`, `web`). A new workspace dependency of `web` must be added there too, or the image build fails.
 
 ## Web app
 
-`web/`: Vite + React 19, React Router, TanStack Query (server state), Tailwind v4 (tokens in `src/styles.css`, light/dark via `prefers-color-scheme`). Layout: `app/` (providers, router, shell), `features/<area>/` (pages + hooks), `ui/` (shared components), `lib/`, `session/`. The vault key lives in React state only: reload = sign in again. Inter is self-hosted (no internet dependency on the LAN).
+`web/`: Vite + React 19, React Router, TanStack Query (server state), Tailwind v4 (tokens from `packages/theme`, light/dark via `prefers-color-scheme`; shared components from `packages/ui`). Layout: `app/` (providers, router, shell), `features/<area>/` (pages + hooks), `lib/`, `session/`. The vault key lives in React state only: reload = sign in again. Inter is self-hosted (no internet dependency on the LAN).
 
 - Dev: `cd server && dotnet run --project src/Rejtek.Server` (http://localhost:5080) + `npm run dev -w @rejtek/web` (proxies `/api`).
 - Prod: the Docker build compiles the web app into the server's `wwwroot`; the server serves it with a strict CSP (`script-src 'self' 'wasm-unsafe-eval'`).
@@ -104,6 +105,7 @@ Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens"
 5. ~~Pairing + sync~~ (done; verified on the emulator against the Docker server: pairing, push/pull, in sync, offline, certificate change, disconnect).
 6. ~~UI design~~ (done, see UI section). Implement screens per the designs within phases 3–5.
 7. ~~Firefox extension~~ (done: pair, unlock, search, copy, fill, offline copy). Later: Chrome.
+8. Release (next): server on the owner's Synology NAS (Container Manager, alongside an existing app), Android APK signed with an own release key (currently release builds use the Expo template's public debug key), Firefox add-on signed via addons.mozilla.org (unlisted). Untested so far: real-device QR scan, extension in a real Firefox.
 
 ## Conventions
 
