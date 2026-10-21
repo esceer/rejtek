@@ -1,10 +1,11 @@
 import type { DecryptedVaultItem } from '@rejtek/core';
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useAutoHide } from '../../lib/useAutoHide';
 import { useClipboard } from '../../lib/useClipboard';
 import { Avatar } from '../../ui/Avatar';
 import { Button } from '../../ui/Button';
 import { Card } from '../../ui/Card';
+import { ConfirmButton } from '../../ui/ConfirmButton';
 import { CopyIcon, EyeIcon, EyeOffIcon } from '../../ui/icons';
 import { vaultErrorMessage } from './messages';
 import { useDeleteItem } from './useVault';
@@ -131,49 +132,20 @@ function CopyButton({
   );
 }
 
-/** Two-step inline confirmation instead of a blocking browser dialog. */
 function DeleteControl({ item, onDeleted }: { item: DecryptedVaultItem; onDeleted: () => void }) {
-  const [confirming, setConfirming] = useState(false);
   const remove = useDeleteItem();
-
-  if (!confirming) {
-    return (
-      <Button
-        variant="danger"
-        size="sm"
-        onClick={() => {
-          setConfirming(true);
-        }}
-      >
-        Delete
-      </Button>
-    );
-  }
   if (remove.isError) {
     return <span className="text-sm text-danger">{vaultErrorMessage(remove.error)}</span>;
   }
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm">Delete “{item.data.name}”?</span>
-      <Button
-        variant="danger"
-        size="sm"
-        disabled={remove.isPending}
-        onClick={() => {
-          remove.mutate(item, { onSuccess: onDeleted });
-        }}
-      >
-        Yes, delete
-      </Button>
-      <Button
-        variant="secondary"
-        size="sm"
-        onClick={() => {
-          setConfirming(false);
-        }}
-      >
-        Cancel
-      </Button>
-    </div>
+    <ConfirmButton
+      label="Delete"
+      confirmLabel="Yes, delete"
+      prompt={`Delete “${item.data.name}”?`}
+      pending={remove.isPending}
+      onConfirm={() => {
+        remove.mutate(item, { onSuccess: onDeleted });
+      }}
+    />
   );
 }

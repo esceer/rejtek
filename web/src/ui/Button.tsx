@@ -14,30 +14,26 @@ const sizes = {
   icon: 'size-10 justify-center',
 } as const;
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: keyof typeof variants;
-  size?: keyof typeof sizes;
+export interface ButtonStyle {
+  variant?: keyof typeof variants | undefined;
+  size?: keyof typeof sizes | undefined;
 }
 
-export function Button({
-  variant = 'primary',
-  size = 'md',
-  type = 'button',
-  className,
-  ...props
-}: ButtonProps) {
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, ButtonStyle {}
+
+/** Button classes, also used to style links as buttons. */
+export function buttonClass({ variant = 'primary', size = 'md' }: ButtonStyle = {}): string {
+  return cx(
+    'inline-flex items-center justify-center gap-2 rounded-[10px] font-semibold no-underline transition-colors',
+    'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+    'disabled:cursor-not-allowed disabled:opacity-60',
+    variants[variant],
+    sizes[size],
+  );
+}
+
+export function Button({ variant, size, type = 'button', className, ...props }: ButtonProps) {
   return (
-    <button
-      type={type}
-      className={cx(
-        'inline-flex items-center justify-center gap-2 rounded-[10px] font-semibold transition-colors',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-        'disabled:cursor-not-allowed disabled:opacity-60',
-        variants[variant],
-        sizes[size],
-        className,
-      )}
-      {...props}
-    />
+    <button type={type} className={cx(buttonClass({ variant, size }), className)} {...props} />
   );
 }
