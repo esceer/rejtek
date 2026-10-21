@@ -50,6 +50,7 @@ Layout: `server/src/Rejtek.Server` (feature folders: `Features/Auth|Devices|Vaul
 - `POST /api/devices/pairing-tokens` → one-time token (5 min) + cert fingerprint for the QR; `POST /api/devices/pair` (anonymous) → device token (valid until revoked) + salt, KDF params, wrapped vault key; `GET /api/devices`; `DELETE /api/devices/{id}`.
 - `GET /api/vault/items`, `GET /api/vault/items/{id}`, `PUT /api/vault/items/{id}` `{baseVersion, updatedAt, data}`, `DELETE /api/vault/items/{id}?baseVersion=n` (tombstone). Version mismatch → `409 {current}`.
 - Auth: opaque bearer tokens (`Authorization: Bearer …`); only SHA-256 hashes are stored.
+- Deploy: `cp .env.example .env` (set `REJTEK_HOST` to the server's LAN IP/host name), `docker compose up -d` → `https://<host>:8443`. Data (SQLite, certificate) lives in the `rejtek-data` volume; the certificate is created on first start and must not change, or paired devices stop trusting the server.
 
 ## UI
 

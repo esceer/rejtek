@@ -1,0 +1,16 @@
+# LAN-only deployment: do not forward this port on your router.
+services:
+  rejtek:
+    build: ./server
+    container_name: rejtek
+    restart: unless-stopped
+    ports:
+      - '8443:8443'
+    environment:
+      # Address the phone/browser uses to reach the server; baked into the certificate on first start.
+      Tls__Hostnames__0: ${REJTEK_HOST:-localhost}
+    volumes:
+      - rejtek-data:/data
+
+volumes:
+  rejtek-data:
