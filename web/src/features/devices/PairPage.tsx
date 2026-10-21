@@ -3,6 +3,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useEffect } from 'react';
 import { Link } from 'react-router';
 import { Alert, Button, Card, ClockIcon, cx } from '@rejtek/ui';
+import { useClipboard } from '../../lib/useClipboard';
 import { useNow } from '../../lib/useNow';
 import { useCreatePairingToken } from './useDevices';
 
@@ -88,6 +89,7 @@ export function PairPage() {
 
 function PairingCode({ pairing }: { pairing: PairingTokenResponse }) {
   const now = useNow();
+  const { copy, copied } = useClipboard();
   const secondsLeft = Math.max(0, Math.round((Date.parse(pairing.expiresAt) - now) / 1_000));
   const expired = secondsLeft === 0;
   const payload = encodePairingPayload({
@@ -130,6 +132,11 @@ function PairingCode({ pairing }: { pairing: PairingTokenResponse }) {
           </span>
         )}
       </div>
+      {!expired && (
+        <Button variant="ghost" size="sm" onClick={() => void copy('link', payload)}>
+          {copied === 'link' ? 'Link copied' : 'Copy link for the browser extension'}
+        </Button>
+      )}
     </>
   );
 }

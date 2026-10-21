@@ -1,4 +1,4 @@
-import type { Device, UnlockedSession } from '@rejtek/core';
+import { parsePairingPayload, type Device, type UnlockedSession } from '@rejtek/core';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -52,5 +52,34 @@ describe('PairPage', () => {
     expect(await screen.findByRole('img', { name: 'Pairing QR code' })).toBeInTheDocument();
     expect(screen.getByText(/Expires in/)).toHaveTextContent(/[45]:\d\d/);
     expect(screen.getByText('3F:9A:62')).toBeInTheDocument();
+  });
+});
+
+describe('PairPage link for the browser extension', () => {
+  it('copies the same pairing link the QR code contains', async () => {
+    const writeText = vi.fn<(text: string) => Promise<void>>(() => Promise.resolve());
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    renderWithProviders(
+      <PairPage />,
+      {
+        createPairingToken: () =>
+          Promise.resolve({
+            token: 'pairing-token',
+            expiresAt: new Date(Date.now() + 5 * 60_000).toISOString(),
+            certificateFingerprint: '3F:9A:62',
+          }),
+      },
+      session,
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Copy link for the browser extension' }),
+    );
+
+    const [link] = writeText.mock.calls[0] ?? [];
+    expect(parsePairingPayload(String(link))).toMatchObject({
+      token: 'pairing-token',
+      fingerprint: '3F:9A:62',
+    });
   });
 });
