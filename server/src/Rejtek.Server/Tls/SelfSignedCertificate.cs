@@ -11,20 +11,33 @@ public static class SelfSignedCertificate
 
     public static X509Certificate2 LoadOrCreate(string path, IEnumerable<string> hostnames, TimeProvider time)
     {
-        if (File.Exists(path))
+        if (!File.Exists(path))
         {
-            return X509CertificateLoader.LoadPkcs12FromFile(path, password: null);
+            TryWriteNew(path, Create(hostnames, time.GetUtcNow()));
         }
 
-        var pfx = Create(hostnames, time.GetUtcNow());
+        // Always serve what is on disk, so the served certificate is the one that survives restarts.
+        return X509CertificateLoader.LoadPkcs12FromFile(path, password: null);
+    }
+
+    /// <summary>Writes the file only if it does not exist yet; a concurrently created certificate wins.</summary>
+    private static void TryWriteNew(string path, byte[] pfx)
+    {
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
-        File.WriteAllBytes(path, pfx);
+        var options = new FileStreamOptions { Mode = FileMode.CreateNew, Access = FileAccess.Write };
         if (!OperatingSystem.IsWindows())
         {
-            File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+            options.UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite;
         }
 
-        return X509CertificateLoader.LoadPkcs12(pfx, password: null);
+        try
+        {
+            using var stream = new FileStream(path, options);
+            stream.Write(pfx);
+        }
+        catch (IOException) when (File.Exists(path))
+        {
+        }
     }
 
     /// <summary>SHA-256 fingerprint as colon-separated hex, the form clients pin and users compare.</summary>

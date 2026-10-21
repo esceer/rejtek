@@ -21,6 +21,19 @@ public sealed class SelfSignedCertificateTests : IDisposable
     }
 
     [Fact]
+    public void Concurrent_first_starts_all_serve_the_stored_certificate()
+    {
+        var fingerprints = Enumerable.Range(0, 8).AsParallel().Select(_ =>
+        {
+            using var certificate = SelfSignedCertificate.LoadOrCreate(CertificatePath, [], TimeProvider.System);
+            return SelfSignedCertificate.Fingerprint(certificate);
+        }).ToList();
+
+        using var stored = X509CertificateLoader.LoadPkcs12FromFile(CertificatePath, password: null);
+        Assert.All(fingerprints, fingerprint => Assert.Equal(SelfSignedCertificate.Fingerprint(stored), fingerprint));
+    }
+
+    [Fact]
     public void Covers_the_configured_hosts_and_localhost()
     {
         using var certificate = SelfSignedCertificate.LoadOrCreate(CertificatePath, ["192.168.1.20", "rejtek.home"], TimeProvider.System);
