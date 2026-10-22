@@ -12,7 +12,7 @@ Encryption is end-to-end: the server only stores ciphertext and never sees a mas
   <img src="docs/screenshots/web-vault.png" alt="Web app: vault with item details" width="100%">
 </p>
 <p>
-  <img src="docs/screenshots/phone-vault.png" alt="Android: vault list, paired with the home server" width="32%">
+  <img src="docs/screenshots/phone-vault.png" alt="Android: vault list with the sync button" width="32%">
   <img src="docs/screenshots/phone-sync.png" alt="Android: sync differences with per-item pull/push" width="32%">
   <img src="docs/screenshots/phone-search-dark.png" alt="Android: search in dark mode" width="32%">
 </p>
