@@ -79,7 +79,7 @@ Layout: `server/src/Rejtek.Server` (feature folders: `Features/Auth|Devices|Vaul
 
 `extension/`: Manifest V3 popup (Vite, React, TanStack Query, `@rejtek/ui`), plus a tiny background script for auto-lock. Firefox only for now (`browser.*` APIs, no polyfill).
 
-- Connect: paste the pairing link from the web Pair page (“Copy link for the browser extension”) → host permission requested for that server origin only → paired as a device (`kind: extension`, revocable on the web Devices page).
+- Connect: paste the pairing link from the web Pair page (“Copy link for the browser extension”) → host permission requested for that server host only (no port: Firefox grants port patterns but they match nothing) → paired as a device (`kind: extension`, revocable on the web Devices page).
 - Unlock: master password → vault key, offline (salt, KDF params and wrapped key stored at pairing). The vault key lives only in `storage.session` (memory, gone when Firefox closes); auto-lock after 15 minutes without use. `storage.local` holds the connection (incl. device token) and the last encrypted item list for offline use.
 - TLS: extensions cannot pin certificates; the user accepts the server's self-signed certificate once in Firefox (compare the fingerprint), after which Firefox trusts exactly that certificate.
 - Suggests items for the active tab's site (`activeTab`), copies username/password; clipboard cleared after 30 s while the popup stays open.

@@ -81,7 +81,7 @@ describe('popup', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Connect' }));
 
     expect(browser.permissions.request).toHaveBeenCalledWith({
-      origins: ['https://192.168.1.20:8443/*'],
+      origins: ['https://192.168.1.20/*'],
     });
     expect(api.pair).toHaveBeenCalledWith({
       pairingToken: 'one-time',

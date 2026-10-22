@@ -60,8 +60,10 @@ export function ConnectView({
     setError(undefined);
     setPayload(parsed);
     // Must be called directly from the click: Firefox shows permission prompts for user actions only.
+    // No port in the pattern: Firefox grants a pattern with a port, but it then matches nothing.
+    const { protocol, hostname } = new URL(parsed.url);
     void browser.permissions
-      .request({ origins: [`${new URL(parsed.url).origin}/*`] })
+      .request({ origins: [`${protocol}//${hostname}/*`] })
       .then((granted) => {
         if (granted) {
           connect.mutate(parsed);
