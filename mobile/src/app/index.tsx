@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useServer } from '../server/ServerProvider';
-import { SyncStatusCard } from '../sync/SyncStatusCard';
 import { createStyles, useTheme } from '../theme/useTheme';
 import { Avatar } from '../ui/Avatar';
 import { IconButton } from '../ui/IconButton';
@@ -36,6 +35,15 @@ export default function VaultScreen() {
       }
       headerRight={
         <>
+          <IconButton
+            icon="sync"
+            label="Sync"
+            color={config ? theme.colors.accent : theme.colors.ink}
+            disabled={!config}
+            onPress={() => {
+              router.push('/sync');
+            }}
+          />
           <IconButton icon="lock-outline" label="Lock now" onPress={lock} />
           <IconButton
             icon="cog-outline"
@@ -56,7 +64,6 @@ export default function VaultScreen() {
         ListHeaderComponent={
           <View style={styles.header}>
             <SearchField value={query} onChangeText={setQuery} />
-            {config && <SyncStatusCard config={config} />}
           </View>
         }
         ListEmptyComponent={

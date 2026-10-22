@@ -10,6 +10,7 @@ export function IconButton({
   onPress,
   color,
   background,
+  disabled = false,
 }: {
   icon: IconName;
   /** Accessibility label: icon-only buttons must still say what they do. */
@@ -17,15 +18,22 @@ export function IconButton({
   onPress: () => void;
   color?: Color;
   background?: Color;
+  disabled?: boolean;
 }) {
   const theme = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       android_ripple={{ color: theme.colors.line, borderless: true, radius: 24 }}
-      style={[styles.button, background !== undefined && { backgroundColor: background }]}
+      style={[
+        styles.button,
+        background !== undefined && { backgroundColor: background },
+        disabled && styles.disabled,
+      ]}
     >
       <MaterialCommunityIcons name={icon} size={22} color={color ?? theme.colors.ink} />
     </Pressable>
@@ -40,4 +48,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  disabled: { opacity: 0.38 },
 });
