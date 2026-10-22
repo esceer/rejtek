@@ -25,8 +25,9 @@ export function displayHost(url: string): string {
   }
 }
 
-export function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(
+/** Date and time in the given locale (default: the runtime's). */
+export function formatDate(iso: string, locale?: string): string {
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(
     new Date(iso),
   );
 }

@@ -2,6 +2,7 @@ import { generatePassword, type VaultItemData } from '@rejtek/core';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Text } from 'react-native';
+import { useI18n } from '../../i18n/I18nProvider';
 import { loadSodium } from '../../lib/sodium';
 import { createStyles, useTheme } from '../../theme/useTheme';
 import { FormField } from '../../ui/FormField';
@@ -29,6 +30,7 @@ export default function EditScreen() {
 function EditForm({ id, initial }: { id: string | undefined; initial: VaultItemData }) {
   const styles = useStyles();
   const theme = useTheme();
+  const { t } = useI18n();
   const [data, setData] = useState(initial);
   const [nameError, setNameError] = useState<string>();
   const save = useSaveLocalItem();
@@ -39,7 +41,7 @@ function EditForm({ id, initial }: { id: string | undefined; initial: VaultItemD
 
   const submit = () => {
     if (!data.name.trim()) {
-      setNameError('Give the item a name');
+      setNameError(t.edit.nameRequired);
       return;
     }
     save.mutate(
@@ -59,10 +61,10 @@ function EditForm({ id, initial }: { id: string | undefined; initial: VaultItemD
   return (
     <Screen
       onClose={router.back}
-      title={id ? 'Edit item' : 'New item'}
+      title={id ? t.edit.editItem : t.edit.newItem}
       footer={
         <PillButton
-          label={save.isPending ? 'Saving…' : 'Save'}
+          label={save.isPending ? t.common.saving : t.common.save}
           disabled={save.isPending}
           onPress={submit}
         />
@@ -70,7 +72,7 @@ function EditForm({ id, initial }: { id: string | undefined; initial: VaultItemD
     >
       <Group>
         <FormField
-          label="Name"
+          label={t.fields.name}
           error={nameError}
           value={data.name}
           onChangeText={set('name')}
@@ -78,7 +80,7 @@ function EditForm({ id, initial }: { id: string | undefined; initial: VaultItemD
         />
         <GroupDivider />
         <FormField
-          label="Website"
+          label={t.fields.website}
           value={data.url}
           onChangeText={set('url')}
           autoCapitalize="none"
@@ -87,7 +89,7 @@ function EditForm({ id, initial }: { id: string | undefined; initial: VaultItemD
         />
         <GroupDivider />
         <FormField
-          label="Username"
+          label={t.fields.username}
           value={data.username}
           onChangeText={set('username')}
           autoCapitalize="none"
@@ -97,7 +99,7 @@ function EditForm({ id, initial }: { id: string | undefined; initial: VaultItemD
 
       <Group>
         <FormField
-          label="Password"
+          label={t.fields.password}
           value={data.password}
           onChangeText={set('password')}
           autoCapitalize="none"
@@ -106,7 +108,7 @@ function EditForm({ id, initial }: { id: string | undefined; initial: VaultItemD
           trailing={
             <IconButton
               icon="dice-multiple-outline"
-              label="Generate a strong password"
+              label={t.edit.generate}
               color={theme.colors.accent}
               background={theme.colors.accentTint}
               onPress={() =>
@@ -122,7 +124,7 @@ function EditForm({ id, initial }: { id: string | undefined; initial: VaultItemD
 
       <Group>
         <FormField
-          label="Notes"
+          label={t.fields.notes}
           value={data.notes}
           onChangeText={set('notes')}
           multiline
@@ -130,7 +132,7 @@ function EditForm({ id, initial }: { id: string | undefined; initial: VaultItemD
         />
       </Group>
 
-      {save.isError && <Text style={styles.error}>Could not save. Please try again.</Text>}
+      {save.isError && <Text style={styles.error}>{t.edit.saveError}</Text>}
     </Screen>
   );
 }

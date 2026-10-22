@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { I18nProvider } from '../i18n/I18nProvider';
 import { ServerProvider } from '../server/ServerProvider';
 import { useTheme } from '../theme/useTheme';
 import { useVault, VaultProvider } from '../vault/VaultProvider';
@@ -15,13 +16,15 @@ export default function RootLayout() {
   );
   return (
     <SafeAreaProvider>
-      <QueryClientProvider client={queryClient}>
-        <VaultProvider>
-          <ServerProvider>
-            <RootStack />
-          </ServerProvider>
-        </VaultProvider>
-      </QueryClientProvider>
+      <I18nProvider>
+        <QueryClientProvider client={queryClient}>
+          <VaultProvider>
+            <ServerProvider>
+              <RootStack />
+            </ServerProvider>
+          </VaultProvider>
+        </QueryClientProvider>
+      </I18nProvider>
     </SafeAreaProvider>
   );
 }

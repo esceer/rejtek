@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useI18n } from '../i18n/I18nProvider';
 import { useServer } from '../server/ServerProvider';
 import { createStyles, useTheme } from '../theme/useTheme';
 import { Avatar } from '../ui/Avatar';
@@ -19,6 +20,7 @@ export default function VaultScreen() {
   const insets = useSafeAreaInsets();
   const { lock } = useUnlockedVault();
   const { config } = useServer();
+  const { t } = useI18n();
   const items = useLocalItems();
   const [query, setQuery] = useState('');
 
@@ -27,27 +29,23 @@ export default function VaultScreen() {
 
   return (
     <Screen
-      title="Vault"
-      subtitle={
-        items.isSuccess
-          ? `${String(all.length)} ${all.length === 1 ? 'item' : 'items'}`
-          : 'Decrypting…'
-      }
+      title={t.vault.title}
+      subtitle={items.isSuccess ? t.vault.items(all.length) : t.vault.decrypting}
       headerRight={
         <>
           <IconButton
             icon="sync"
-            label="Sync"
+            label={t.vault.sync}
             color={config ? theme.colors.accent : theme.colors.ink}
             disabled={!config}
             onPress={() => {
               router.push('/sync');
             }}
           />
-          <IconButton icon="lock-outline" label="Lock now" onPress={lock} />
+          <IconButton icon="lock-outline" label={t.vault.lockNow} onPress={lock} />
           <IconButton
             icon="cog-outline"
-            label="Settings"
+            label={t.vault.settings}
             onPress={() => {
               router.push('/settings');
             }}
@@ -68,11 +66,7 @@ export default function VaultScreen() {
         }
         ListEmptyComponent={
           items.isSuccess ? (
-            <Text style={styles.empty}>
-              {all.length === 0
-                ? 'No passwords yet. Tap + to add your first one.'
-                : 'Nothing matches your search.'}
-            </Text>
+            <Text style={styles.empty}>{all.length === 0 ? t.vault.empty : t.vault.noMatch}</Text>
           ) : undefined
         }
         renderItem={({ item, index }) => (
@@ -81,7 +75,7 @@ export default function VaultScreen() {
       />
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Add item"
+        accessibilityLabel={t.vault.addItem}
         onPress={() => {
           router.push('/edit/new');
         }}

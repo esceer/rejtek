@@ -1,11 +1,12 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { TextInput, View } from 'react-native';
+import { useI18n } from '../i18n/I18nProvider';
 import { createStyles, useTheme } from '../theme/useTheme';
 
 export function SearchField({
   value,
   onChangeText,
-  placeholder = 'Search',
+  placeholder,
 }: {
   value: string;
   onChangeText: (text: string) => void;
@@ -13,14 +14,15 @@ export function SearchField({
 }) {
   const styles = useStyles();
   const theme = useTheme();
+  const { t } = useI18n();
   return (
     <View style={styles.field}>
       <MaterialCommunityIcons name="magnify" size={20} color={theme.colors.muted} />
       <TextInput
-        accessibilityLabel="Search vault"
+        accessibilityLabel={t.vault.searchLabel}
         value={value}
         onChangeText={onChangeText}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t.vault.search}
         placeholderTextColor={theme.colors.muted}
         autoCapitalize="none"
         autoCorrect={false}

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useI18n } from '../i18n/I18nProvider';
 import { createStyles } from '../theme/useTheme';
 import { IconButton } from './IconButton';
 
@@ -30,13 +31,14 @@ export function Screen({
 }: ScreenProps) {
   const styles = useStyles();
   const insets = useSafeAreaInsets();
+  const { t } = useI18n();
   const Body = scroll ? ScrollView : View;
 
   return (
     <View style={[styles.root, { paddingTop: insets.top + 4 }]}>
       <View style={styles.topBar}>
-        {onBack && <IconButton icon="arrow-left" label="Back" onPress={onBack} />}
-        {onClose && <IconButton icon="close" label="Close" onPress={onClose} />}
+        {onBack && <IconButton icon="arrow-left" label={t.common.back} onPress={onBack} />}
+        {onClose && <IconButton icon="close" label={t.common.close} onPress={onClose} />}
         <View style={styles.spacer} />
         {headerRight}
       </View>

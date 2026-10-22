@@ -2,6 +2,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useI18n } from '../i18n/I18nProvider';
+import type { Messages } from '../i18n/en';
 import { createStyles, useTheme } from '../theme/useTheme';
 import { PillButton } from '../ui/PillButton';
 import { VaultKeyMissingError } from '../vault/vault-key';
@@ -9,13 +11,11 @@ import { useVault, type UnlockResult } from '../vault/VaultProvider';
 
 type Status = 'idle' | 'busy' | Exclude<UnlockResult, 'unlocked'> | 'key-missing' | 'error';
 
-const MESSAGES: Partial<Record<Status, string>> = {
-  'no-screen-lock':
-    'Set a screen lock first (PIN, pattern, password or fingerprint) in Android Settings → Security. Rejtek uses it to protect your passwords.',
-  'key-missing':
-    'The key for this vault is missing on this phone, so the stored items cannot be decrypted.',
-  error: 'Could not open the vault. Please try again.',
-};
+const messagesFor = (t: Messages): Partial<Record<Status, string>> => ({
+  'no-screen-lock': t.unlock.noScreenLock,
+  'key-missing': t.unlock.keyMissing,
+  error: t.unlock.error,
+});
 
 const statusOf = (result: UnlockResult): Status => (result === 'unlocked' ? 'idle' : result);
 const statusOfError = (error: unknown): Status =>
@@ -26,6 +26,7 @@ export default function UnlockScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { unlock } = useVault();
+  const { t } = useI18n();
   // Starts busy: the system prompt opens right away, like in other password managers.
   const [status, setStatus] = useState<Status>('busy');
 
@@ -56,7 +57,7 @@ export default function UnlockScreen() {
     );
   };
 
-  const message = MESSAGES[status];
+  const message = messagesFor(t)[status];
 
   return (
     <View style={[styles.root, { paddingTop: insets.top, paddingBottom: insets.bottom + 36 }]}>
@@ -65,24 +66,24 @@ export default function UnlockScreen() {
           <MaterialCommunityIcons name="lock-outline" size={40} color={theme.colors.accent} />
         </View>
         <Text style={styles.title} accessibilityRole="header">
-          Rejtek is locked
+          {t.unlock.title}
         </Text>
-        <Text style={styles.text}>{message ?? 'Unlock to see your passwords.'}</Text>
+        <Text style={styles.text}>{message ?? t.unlock.text}</Text>
       </View>
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Unlock with fingerprint"
+        accessibilityLabel={t.unlock.withFingerprint}
         onPress={tryUnlock}
         style={styles.fingerprint}
       >
         <MaterialCommunityIcons name="fingerprint" size={48} color={theme.colors.accent} />
       </Pressable>
-      <Text style={styles.hint}>Fingerprint, PIN or pattern</Text>
+      <Text style={styles.hint}>{t.unlock.hint}</Text>
 
       <View style={styles.actions}>
         <PillButton
-          label={status === 'busy' ? 'Unlocking…' : 'Unlock'}
+          label={status === 'busy' ? t.unlock.unlocking : t.unlock.unlock}
           disabled={status === 'busy'}
           onPress={tryUnlock}
         />

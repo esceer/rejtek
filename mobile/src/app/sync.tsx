@@ -11,6 +11,7 @@ import {
 } from '@rejtek/core';
 import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
+import { useI18n } from '../i18n/I18nProvider';
 import { isCertificateMismatch } from '../server/pinned-fetch';
 import { serverHost, type ServerConfig } from '../server/server-config';
 import { useServer } from '../server/ServerProvider';
@@ -28,26 +29,27 @@ import type { IconName } from '../ui/icons';
 import { PillButton } from '../ui/PillButton';
 import { Screen } from '../ui/Screen';
 
-const TAGS: Record<DiffKind, { label: string; tone: 'warn' | 'accent' | 'neutral' | 'danger' }> = {
-  'changed-both': { label: 'Changed on both', tone: 'warn' },
-  'local-only': { label: 'Only on phone', tone: 'accent' },
-  'changed-local': { label: 'Changed on phone', tone: 'accent' },
-  'server-only': { label: 'Only on server', tone: 'neutral' },
-  'changed-server': { label: 'Changed on server', tone: 'neutral' },
-  'deleted-local': { label: 'Deleted on phone', tone: 'danger' },
-  'deleted-server': { label: 'Deleted on server', tone: 'danger' },
+const TAG_TONES: Record<DiffKind, 'warn' | 'accent' | 'neutral' | 'danger'> = {
+  'changed-both': 'warn',
+  'local-only': 'accent',
+  'changed-local': 'accent',
+  'server-only': 'neutral',
+  'changed-server': 'neutral',
+  'deleted-local': 'danger',
+  'deleted-server': 'danger',
 };
 
 export default function SyncScreen() {
   const { config, api } = useServer();
+  const { t } = useI18n();
   if (!config || !api) {
     return (
-      <Screen onBack={router.back} title="Sync">
+      <Screen onBack={router.back} title={t.sync.title}>
         <StatusView
           icon="lan-disconnect"
           tone="warn"
-          title="Not connected"
-          text="Connect this phone to your home server in Settings first."
+          title={t.sync.notConnectedTitle}
+          text={t.sync.notConnectedText}
         />
       </Screen>
     );
@@ -58,6 +60,7 @@ export default function SyncScreen() {
 function SyncContent({ config, api }: { config: ServerConfig; api: ApiClient }) {
   const styles = useStyles();
   const theme = useTheme();
+  const { t } = useI18n();
   const diff = useSyncDiff(api);
   const action = useSyncAction(api);
   const busy = action.isPending || diff.isFetching;
@@ -66,15 +69,16 @@ function SyncContent({ config, api }: { config: ServerConfig; api: ApiClient }) 
   };
 
   const online = diff.isSuccess;
-  const subtitle = `${serverHost(config)} · ${diff.isPending ? 'checking…' : online ? 'online' : 'not reachable'}`;
+  const status = diff.isPending ? t.sync.checking : online ? t.sync.online : t.sync.offline;
+  const subtitle = `${serverHost(config)} · ${status}`;
 
   if (diff.isError) {
     return (
       <Screen
         onBack={router.back}
-        title="Sync"
+        title={t.sync.title}
         subtitle={subtitle}
-        footer={<PillButton label="Try again" onPress={() => void diff.refetch()} />}
+        footer={<PillButton label={t.common.tryAgain} onPress={() => void diff.refetch()} />}
       >
         <SyncProblem error={diff.error} />
       </Screen>
@@ -83,8 +87,8 @@ function SyncContent({ config, api }: { config: ServerConfig; api: ApiClient }) 
 
   if (!diff.data) {
     return (
-      <Screen onBack={router.back} title="Sync" subtitle={subtitle}>
-        <Text style={styles.muted}>Comparing with the server…</Text>
+      <Screen onBack={router.back} title={t.sync.title} subtitle={subtitle}>
+        <Text style={styles.muted}>{t.sync.comparing}</Text>
       </Screen>
     );
   }
@@ -94,16 +98,11 @@ function SyncContent({ config, api }: { config: ServerConfig; api: ApiClient }) 
     return (
       <Screen
         onBack={router.back}
-        title="Sync"
+        title={t.sync.title}
         subtitle={subtitle}
-        footer={<PillButton label="Done" variant="secondary" onPress={router.back} />}
+        footer={<PillButton label={t.common.done} variant="secondary" onPress={router.back} />}
       >
-        <StatusView
-          icon="check"
-          tone="ok"
-          title="In sync"
-          text={`All ${String(compared)} items match the server.`}
-        />
+        <StatusView icon="check" tone="ok" title={t.sync.inSync} text={t.sync.allMatch(compared)} />
       </Screen>
     );
   }
@@ -111,12 +110,12 @@ function SyncContent({ config, api }: { config: ServerConfig; api: ApiClient }) 
   return (
     <Screen
       onBack={router.back}
-      title="Sync"
+      title={t.sync.title}
       subtitle={subtitle}
       footer={
         <>
           <PillButton
-            label="Pull all"
+            label={t.sync.pullAll}
             variant="secondary"
             disabled={busy || !differences.some(canPull)}
             onPress={() => {
@@ -124,7 +123,7 @@ function SyncContent({ config, api }: { config: ServerConfig; api: ApiClient }) 
             }}
           />
           <PillButton
-            label="Push all"
+            label={t.sync.pushAll}
             disabled={busy || !differences.some(canPush)}
             onPress={() => {
               run({ type: 'push-all', differences });
@@ -135,20 +134,16 @@ function SyncContent({ config, api }: { config: ServerConfig; api: ApiClient }) 
     >
       <Group>
         <View style={styles.summary}>
-          <Text style={styles.count}>
-            {differences.length} {differences.length === 1 ? 'difference' : 'differences'}
-          </Text>
-          <Text style={styles.muted}>
-            Compared {compared} items. Passwords are never shown here.
-          </Text>
+          <Text style={styles.count}>{t.sync.differences(differences.length)}</Text>
+          <Text style={styles.muted}>{t.sync.compared(compared)}</Text>
         </View>
       </Group>
 
       {action.isError && (
         <Text style={styles.error}>
           {action.error instanceof ApiError && action.error.status === 409
-            ? 'An item changed on another device meanwhile. The list is refreshed, please check again.'
-            : 'Could not complete the sync. Please try again.'}
+            ? t.sync.conflict
+            : t.sync.failed}
         </Text>
       )}
 
@@ -188,14 +183,15 @@ function DifferenceRow({
   onPush: () => void;
 }) {
   const styles = useStyles();
-  const tag = TAGS[difference.kind];
+  const { t } = useI18n();
+  const tone = TAG_TONES[difference.kind];
   const tagColors = {
     warn: [theme.colors.warnTint, theme.colors.warn],
     accent: [theme.colors.accentTint, theme.colors.accent],
     neutral: [theme.colors.field, theme.colors.muted],
     danger: [theme.colors.dangerTint, theme.colors.danger],
   } as const;
-  const [background, color] = tagColors[tag.tone];
+  const [background, color] = tagColors[tone];
 
   return (
     <View style={styles.diffRow}>
@@ -204,21 +200,21 @@ function DifferenceRow({
           {difference.name}
         </Text>
         <View style={[styles.tag, { backgroundColor: background }]}>
-          <Text style={[styles.tagText, { color }]}>{tag.label}</Text>
+          <Text style={[styles.tagText, { color }]}>{t.sync.tags[difference.kind]}</Text>
         </View>
       </View>
       <View style={styles.segment}>
         <SegmentButton
           icon="arrow-down"
-          label="Pull"
-          accessibilityLabel={`Pull ${difference.name} from server`}
+          label={t.sync.pull}
+          accessibilityLabel={t.sync.pullItem(difference.name)}
           disabled={disabled || !canPull(difference)}
           onPress={onPull}
         />
         <SegmentButton
           icon="arrow-up"
-          label="Push"
-          accessibilityLabel={`Push ${difference.name} to server`}
+          label={t.sync.push}
+          accessibilityLabel={t.sync.pushItem(difference.name)}
           disabled={disabled || !canPush(difference)}
           onPress={onPush}
         />
@@ -259,6 +255,7 @@ function SegmentButton({
 
 /** Off the home network, revoked, or a different server certificate. */
 function SyncProblem({ error }: { error: Error }) {
+  const { t, language } = useI18n();
   const lastSync = useLastSync();
   const pending = usePendingChanges();
 
@@ -267,8 +264,8 @@ function SyncProblem({ error }: { error: Error }) {
       <StatusView
         icon="cellphone-remove"
         tone="danger"
-        title="Disconnected by the server"
-        text="This phone was removed on the server’s Devices page. Connect again in Settings."
+        title={t.sync.revokedTitle}
+        text={t.sync.revokedText}
       />
     );
   }
@@ -277,8 +274,8 @@ function SyncProblem({ error }: { error: Error }) {
       <StatusView
         icon="shield-alert-outline"
         tone="danger"
-        title="Server certificate changed"
-        text="The server presented a different certificate than when you paired. Nothing was sent. If you reinstalled the server, disconnect and pair again."
+        title={t.sync.certificateChangedTitle}
+        text={t.sync.certificateChangedText}
       />
     );
   }
@@ -287,16 +284,16 @@ function SyncProblem({ error }: { error: Error }) {
       <StatusView
         icon="wifi-off"
         tone="warn"
-        title="Can’t reach your server"
-        text="Sync only works on your home Wi-Fi. Your passwords on this phone still work as usual."
+        title={t.sync.offlineTitle}
+        text={t.sync.offlineText}
       />
       <Group>
         <InfoRow
-          label="Last successful sync"
-          value={lastSync.data ? formatDate(lastSync.data) : 'Never'}
+          label={t.sync.lastSync}
+          value={lastSync.data ? formatDate(lastSync.data, language) : t.sync.never}
         />
         <GroupDivider />
-        <InfoRow label="Changes waiting on phone" value={String(pending.data ?? 0)} />
+        <InfoRow label={t.sync.pending} value={String(pending.data ?? 0)} />
       </Group>
     </>
   );

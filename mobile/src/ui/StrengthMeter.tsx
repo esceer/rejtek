@@ -1,10 +1,12 @@
-import { estimatePasswordStrength, PASSWORD_STRENGTH_LABELS } from '@rejtek/core';
+import { estimatePasswordStrength } from '@rejtek/core';
 import { Text, View } from 'react-native';
+import { useI18n } from '../i18n/I18nProvider';
 import { createStyles, useTheme } from '../theme/useTheme';
 
 export function StrengthMeter({ password }: { password: string }) {
   const styles = useStyles();
   const theme = useTheme();
+  const { t } = useI18n();
   const strength = estimatePasswordStrength(password);
   const filled = password ? Math.max(strength, 1) : 0;
   const color =
@@ -21,7 +23,7 @@ export function StrengthMeter({ password }: { password: string }) {
       </View>
       <Text style={styles.label}>
         {password
-          ? `${PASSWORD_STRENGTH_LABELS[strength]} · ${String(Array.from(password).length)} characters`
+          ? `${t.strength.labels[strength] ?? ''} · ${t.strength.characters(Array.from(password).length)}`
           : ' '}
       </Text>
     </View>

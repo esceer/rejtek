@@ -3,19 +3,15 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { router } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Text, View } from 'react-native';
+import { useI18n } from '../../i18n/I18nProvider';
 import { createStyles } from '../../theme/useTheme';
 import { Group } from '../../ui/Group';
 import { PillButton } from '../../ui/PillButton';
 import { Screen } from '../../ui/Screen';
 
-const STEPS = [
-  'On a computer at home, open Rejtek in the browser and sign in.',
-  'Go to Devices → Pair a phone.',
-  'Point this camera at the code.',
-];
-
 export default function ScanScreen() {
   const styles = useStyles();
+  const { t } = useI18n();
   const [permission, requestPermission] = useCameraPermissions();
   const [error, setError] = useState<string | null>(null);
   const handled = useRef(false);
@@ -29,16 +25,12 @@ export default function ScanScreen() {
       handled.current = true;
       router.replace({ pathname: '/pair/confirm', params: { code: data } });
     } catch {
-      setError('That is not a Rejtek pairing code.');
+      setError(t.scan.notACode);
     }
   };
 
   return (
-    <Screen
-      onBack={router.back}
-      title="Connect to server"
-      subtitle="Scan the pairing code shown on the Rejtek web page."
-    >
+    <Screen onBack={router.back} title={t.scan.title} subtitle={t.scan.subtitle}>
       <View style={styles.camera}>
         {permission?.granted ? (
           <CameraView
@@ -51,12 +43,10 @@ export default function ScanScreen() {
           />
         ) : (
           <View style={styles.permission}>
-            <Text style={styles.permissionText}>
-              Rejtek needs the camera only to scan the pairing code.
-            </Text>
+            <Text style={styles.permissionText}>{t.scan.cameraReason}</Text>
             {permission && (
               <View style={styles.permissionButton}>
-                <PillButton label="Allow camera" onPress={() => void requestPermission()} />
+                <PillButton label={t.scan.allowCamera} onPress={() => void requestPermission()} />
               </View>
             )}
           </View>
@@ -65,7 +55,7 @@ export default function ScanScreen() {
       {error !== null && <Text style={styles.error}>{error}</Text>}
       <Group>
         <View style={styles.steps}>
-          {STEPS.map((step, index) => (
+          {t.scan.steps.map((step, index) => (
             <View key={step} style={styles.step}>
               <View style={styles.stepNumber}>
                 <Text style={styles.stepNumberText}>{index + 1}</Text>
@@ -75,7 +65,7 @@ export default function ScanScreen() {
           ))}
         </View>
       </Group>
-      <Text style={styles.hint}>Your phone must be on the home Wi-Fi.</Text>
+      <Text style={styles.hint}>{t.scan.wifiHint}</Text>
     </Screen>
   );
 }

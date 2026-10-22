@@ -7,10 +7,12 @@ export async function hasScreenLock(): Promise<boolean> {
 }
 
 /** Shows the system prompt: fingerprint/face, or the device PIN, pattern or password. */
-export async function authenticateUser(): Promise<boolean> {
+export async function authenticateUser(texts: {
+  promptMessage: string;
+  cancelLabel: string;
+}): Promise<boolean> {
   const result = await LocalAuthentication.authenticateAsync({
-    promptMessage: 'Unlock Rejtek',
-    cancelLabel: 'Cancel',
+    ...texts,
     disableDeviceFallback: false,
   });
   return result.success;

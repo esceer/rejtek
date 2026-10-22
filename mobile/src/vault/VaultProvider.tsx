@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { AppState } from 'react-native';
 import { loadSodium } from '../lib/sodium';
+import { useI18n } from '../i18n/I18nProvider';
 import { authenticateUser, hasScreenLock } from './device-auth';
 import { LocalVaultStore } from './local-store';
 import { loadOrCreateVaultKey, replaceVaultKey } from './vault-key';
@@ -31,6 +32,7 @@ const VaultContext = createContext<VaultContextValue | null>(null);
 
 export function VaultProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
+  const { t } = useI18n();
   const [unlocked, setUnlocked] = useState<VaultContextValue['unlocked']>(null);
 
   const lock = useCallback(() => {
@@ -42,14 +44,19 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     if (!(await hasScreenLock())) {
       return 'no-screen-lock';
     }
-    if (!(await authenticateUser())) {
+    if (
+      !(await authenticateUser({
+        promptMessage: t.unlock.systemPrompt,
+        cancelLabel: t.common.cancel,
+      }))
+    ) {
       return 'cancelled';
     }
     const [sodium, store] = await Promise.all([loadSodium(), LocalVaultStore.open()]);
     const vaultKey = await loadOrCreateVaultKey(sodium, store);
     setUnlocked({ vaultKey, store });
     return 'unlocked';
-  }, []);
+  }, [t]);
 
   const changeVaultKey = useCallback(
     async (newKey: Uint8Array) => {

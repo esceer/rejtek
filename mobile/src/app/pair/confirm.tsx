@@ -10,6 +10,8 @@ import { useMutation } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
+import { useI18n } from '../../i18n/I18nProvider';
+import type { Messages } from '../../i18n/en';
 import { loadSodium } from '../../lib/sodium';
 import { requestPairing, unlockAccountVaultKey } from '../../server/pairing';
 import { isCertificateMismatch } from '../../server/pinned-fetch';
@@ -25,6 +27,7 @@ import { useUnlockedVault } from '../../vault/VaultProvider';
 
 export default function ConfirmPairingScreen() {
   const styles = useStyles();
+  const { t } = useI18n();
   const { code } = useLocalSearchParams<{ code: string }>();
   const payload = useMemo(() => {
     try {
@@ -36,8 +39,8 @@ export default function ConfirmPairingScreen() {
 
   if (!payload) {
     return (
-      <Screen onBack={router.back} title="Not a pairing code">
-        <Text style={styles.muted}>Scan the code shown on the Rejtek web page under Devices.</Text>
+      <Screen onBack={router.back} title={t.pairing.notACodeTitle}>
+        <Text style={styles.muted}>{t.pairing.notACodeText}</Text>
       </Screen>
     );
   }
@@ -46,6 +49,7 @@ export default function ConfirmPairingScreen() {
 
 function ConfirmForm({ payload }: { payload: PairingPayload }) {
   const styles = useStyles();
+  const { t } = useI18n();
   const { changeVaultKey } = useUnlockedVault();
   const { connect } = useServer();
   const localItems = useLocalItems();
@@ -77,11 +81,11 @@ function ConfirmForm({ payload }: { payload: PairingPayload }) {
   return (
     <Screen
       onBack={router.back}
-      title="Almost done"
-      subtitle={`Enter ${paired ? `${paired.username}’s` : 'your'} master password once. This phone keeps the key safely behind your screen lock.`}
+      title={t.pairing.title}
+      subtitle={t.pairing.subtitle(paired?.username)}
       footer={
         <PillButton
-          label={pair.isPending ? 'Connecting…' : 'Connect'}
+          label={pair.isPending ? t.pairing.connecting : t.pairing.connect}
           disabled={pair.isPending || password === ''}
           onPress={() => {
             pair.mutate();
@@ -91,55 +95,51 @@ function ConfirmForm({ payload }: { payload: PairingPayload }) {
     >
       <Group>
         <View style={styles.row}>
-          <Text style={styles.label}>Server</Text>
+          <Text style={styles.label}>{t.fields.server}</Text>
           <Text style={styles.value}>{serverHost(payload)}</Text>
         </View>
         <GroupDivider />
         <View style={styles.row}>
-          <Text style={styles.label}>Server certificate</Text>
-          <Text style={styles.mono}>{payload.fingerprint ?? 'none (development server)'}</Text>
+          <Text style={styles.label}>{t.fields.certificate}</Text>
+          <Text style={styles.mono}>{payload.fingerprint ?? t.pairing.developmentServer}</Text>
         </View>
       </Group>
 
       <Group>
         <FormField
-          label="Master password"
+          label={t.fields.masterPassword}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
           autoFocus
           autoCapitalize="none"
           autoCorrect={false}
-          error={pair.isError ? pairingErrorMessage(pair.error, paired !== undefined) : undefined}
+          error={
+            pair.isError ? pairingErrorMessage(t, pair.error, paired !== undefined) : undefined
+          }
         />
       </Group>
 
       {itemCount > 0 && (
         <View style={styles.info}>
-          <Text style={styles.infoText}>
-            {itemCount === 1
-              ? 'The item already on this phone stays here. It will show up as “Only on phone” on your first sync.'
-              : `The ${String(itemCount)} items already on this phone stay here. They will show up as “Only on phone” on your first sync.`}
-          </Text>
+          <Text style={styles.infoText}>{t.pairing.existingItems(itemCount)}</Text>
         </View>
       )}
     </Screen>
   );
 }
 
-function pairingErrorMessage(error: unknown, alreadyPaired: boolean): string {
+function pairingErrorMessage(t: Messages, error: unknown, alreadyPaired: boolean): string {
   if (error instanceof DecryptionError) {
-    return 'Wrong master password';
+    return t.pairing.wrongPassword;
   }
   if (error instanceof ServerUnreachableError) {
-    return isCertificateMismatch(error)
-      ? 'The server’s certificate does not match the code'
-      : 'Cannot reach the server. Is the phone on the home Wi-Fi?';
+    return isCertificateMismatch(error) ? t.pairing.certificateMismatch : t.pairing.unreachable;
   }
   if (!alreadyPaired && error instanceof ApiError && error.status === 401) {
-    return 'This code expired or was already used. Create a new one on the web page.';
+    return t.pairing.expired;
   }
-  return 'Something went wrong. Please try again.';
+  return t.common.somethingWrong;
 }
 
 const useStyles = createStyles((t) => ({
