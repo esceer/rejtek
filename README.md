@@ -127,14 +127,35 @@ The build stages run natively and cross-compile, so building an amd64 image on A
 
 ### Android app (sideloaded, no Play Store)
 
+Release builds are signed with the owner's own key, using the config plugin in `mobile/plugins/with-release-signing.js`. Without the key, a release build fails rather than falling back to the public debug key.
+
+**One-time setup:**
+
+1. Create the key. `keytool` comes with the JDK and asks for a password:
+   ```sh
+   mkdir -p ~/.android-keys
+   keytool -genkeypair -v -storetype PKCS12 -keystore ~/.android-keys/rejtek-release.jks \
+     -alias rejtek -keyalg RSA -keysize 4096 -validity 36500 -dname "CN=Rejtek"
+   ```
+2. Add these lines to `~/.gradle/gradle.properties`. That file is outside the repo, so make it readable only by you. With PKCS12, the key password is the same as the store password.
+   ```properties
+   REJTEK_RELEASE_STORE_FILE=/Users/<you>/.android-keys/rejtek-release.jks
+   REJTEK_RELEASE_STORE_PASSWORD=<password>
+   REJTEK_RELEASE_KEY_ALIAS=rejtek
+   REJTEK_RELEASE_KEY_PASSWORD=<password>
+   ```
+3. **Back up the `.jks` file and its password**, for example in the vault itself and on the NAS. Every update must be signed with this same key. Without it, the only way to update is to uninstall, which deletes the phone's local vault.
+
+**Build:**
+
 ```sh
-cd mobile/android && ./gradlew assembleRelease
-# → mobile/android/app/build/outputs/apk/release/app-release.apk
+npm run build:apk -w @rejtek/mobile
+# → mobile/android/app/build/outputs/apk/release/app-release.apk (arm64-v8a only)
 ```
 
-Copy the APK to the phone and install it (allow "install unknown apps" for the file manager), or connect the phone with USB debugging and run `adb install -r app-release.apk`. Updates must be signed with the same key, or Android refuses them.
+**Install:** copy the APK to the phone and open it in the file manager. Allow "install unknown apps" for that app when Android asks. Alternatively, connect the phone with USB debugging and run `adb install -r app-release.apk`.
 
-> Release builds are currently signed with the Expo template's **public debug key**. Set up an own release keystore before installing on real phones (see roadmap step 8 in `CLAUDE.md`).
+**Updates:** raise `version` in `mobile/app.json`, then build and install over the existing app. Local data is kept.
 
 ### Firefox extension
 

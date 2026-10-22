@@ -72,6 +72,7 @@ Layout: `server/src/Rejtek.Server` (feature folders: `Features/Auth|Devices|Vaul
 - Server connection: `modules/pinned-fetch` (local Expo module, Kotlin) trusts exactly the certificate whose SHA-256 came from the pairing QR; hostname is not checked (the pin is the identity). Device token + server URL/fingerprint in SecureStore.
 - Pairing: QR / deep link `rejtek://pair?p=<base64url JSON>` → master password once → local items re-encrypted under the account vault key (crash-safe: pending key slot, single transaction, then promote). The web UI must be opened via the server's LAN address, since the QR carries the page origin.
 - Sync (`core/src/sync`): diff by id/version/syncedVersion, names decrypted for display only. Push sends the diffed server version as `baseVersion` (409 on concurrent change). Bulk pull/push never delete one-sided items.
+- Release: own signing key via the `plugins/with-release-signing.js` config plugin (properties `REJTEK_RELEASE_*` in `~/.gradle/gradle.properties`; release builds fail without them). `npm run build:apk -w @rejtek/mobile` → sideloadable arm64 APK.
 - Dev: `npm run android -w @rejtek/mobile` (build + install), `npm start -w @rejtek/mobile` (Metro, never with `CI=1`: that disables reloads). Emulator AVD: `OnePlus_15`; it reaches the host as `10.0.2.2` (e.g. Docker server at `https://10.0.2.2:8443`).
 
 ## Firefox extension
@@ -105,7 +106,7 @@ Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens"
 5. ~~Pairing + sync~~ (done; verified on the emulator against the Docker server: pairing, push/pull, in sync, offline, certificate change, disconnect).
 6. ~~UI design~~ (done, see UI section). Implement screens per the designs within phases 3–5.
 7. ~~Firefox extension~~ (done: pair, unlock, search, copy, fill, offline copy). Later: Chrome.
-8. Release (next): server on the owner's Synology NAS (Container Manager, alongside an existing app), Android APK signed with an own release key (currently release builds use the Expo template's public debug key), Firefox add-on signed via addons.mozilla.org (unlisted). Untested so far: real-device QR scan, extension in a real Firefox.
+8. Release: ~~server on the owner's Synology NAS~~ (done: image cross-built on the Mac and loaded on the NAS, see README), ~~Android release signing~~ (done: `plugins/with-release-signing.js`, key in `~/.gradle/gradle.properties`, `npm run build:apk -w @rejtek/mobile` builds arm64-only), install on the owner's phone + real-device QR scan, Firefox add-on signed via addons.mozilla.org (unlisted).
 
 ## Conventions
 

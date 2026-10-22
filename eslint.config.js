@@ -31,5 +31,14 @@ export default defineConfig(
     extends: [reactHooks.configs.flat['recommended-latest']],
   },
   { files: ['**/*.js'], extends: [tseslint.configs.disableTypeChecked] },
+  {
+    // Expo config plugins are loaded with require().
+    files: ['mobile/plugins/**/*.js'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: { require: 'readonly', module: 'writable' },
+    },
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
+  },
   prettier,
 );

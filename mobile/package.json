@@ -32,7 +32,8 @@
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:apk": "expo prebuild --platform android && cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a"
   },
   "private": true
 }
