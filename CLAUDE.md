@@ -106,7 +106,7 @@ Designs: https://claude.ai/artifact/CY6m995UBCfXgjpNR3vvR6 (pages "Core screens"
 5. ~~Pairing + sync~~ (done; verified on the emulator against the Docker server: pairing, push/pull, in sync, offline, certificate change, disconnect).
 6. ~~UI design~~ (done, see UI section). Implement screens per the designs within phases 3–5.
 7. ~~Firefox extension~~ (done: pair, unlock, search, copy, fill, offline copy). Later: Chrome.
-8. Release: ~~server deployment~~ (done: image cross-built on a dev machine and loaded on the server, see README), ~~Android release signing~~ (done: `plugins/with-release-signing.js`, key in `~/.gradle/gradle.properties`, `npm run build:apk -w @rejtek/mobile` builds arm64-only), install on the owner's phone + real-device QR scan, Firefox add-on signed via addons.mozilla.org (unlisted).
+8. ~~Release~~ (done: server image cross-built on a dev machine and loaded on the server, see README; Android APK signed with the owner's key via `plugins/with-release-signing.js`, `npm run build:apk -w @rejtek/mobile`, installed and paired by real QR scan; Firefox add-on signed unlisted on addons.mozilla.org).
 
 ## Conventions
 

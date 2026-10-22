@@ -161,17 +161,23 @@ npm run build:apk -w @rejtek/mobile
 
 Regular Firefox only installs extensions signed by Mozilla. To get yours signed without publishing it, use the **unlisted** channel:
 
-1. Create API credentials on addons.mozilla.org: **Developer Hub → Manage API Keys**.
-2. Run:
+1. Create API credentials on addons.mozilla.org: **Developer Hub → Manage API Keys** (JWT issuer + secret; keep the secret out of the repo and shell history).
+2. Build, then sign. The bundle is minified, so the committed source goes along for Mozilla's review:
    ```sh
    npm run package -w @rejtek/extension
-   cd extension && npx web-ext sign --source-dir dist --channel unlisted \
-     --api-key "$AMO_JWT_ISSUER" --api-secret "$AMO_JWT_SECRET"
+   git archive --format zip -o extension/artifacts/rejtek-source.zip HEAD
+   cd extension
+   # zsh: prompts without echoing the secret or saving it in history
+   read -r "AMO_JWT_ISSUER?JWT issuer: "; read -rs "AMO_JWT_SECRET?JWT secret: "; echo
+   npx web-ext sign --source-dir dist --channel unlisted \
+     --api-key "$AMO_JWT_ISSUER" --api-secret "$AMO_JWT_SECRET" \
+     --upload-source-code artifacts/rejtek-source.zip --artifacts-dir artifacts
    ```
-   Mozilla may ask for the human-readable source, because the bundle is minified. Pass `--upload-source-code` with a zip of the repository.
-3. Open the signed `.xpi` in Firefox to install it. Firefox updates it when you install a newer signed version.
+   The signed `.xpi` lands in `extension/artifacts/` after a few minutes.
+3. Install it in Firefox: `about:addons` → gear → **Install Add-on From File…**. Installing a newer signed version updates it in place.
+4. Connect: open the server once in Firefox and accept its certificate (compare the fingerprint), then on the web **Pair** page click **Copy link for the browser extension** and paste it into the popup.
 
-Each signed version needs a higher `version` in `extension/public/manifest.json`.
+Each signed version needs a higher `version` in `extension/public/manifest.json`; Mozilla never signs the same version twice.
 
 ## Maintenance notes
 
