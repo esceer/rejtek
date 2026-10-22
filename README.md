@@ -98,7 +98,7 @@ Load the extension in Firefox: open `about:debugging`, go to **This Firefox**, c
 
 ### Server (Docker)
 
-Run this on an always-on machine in the home network, such as a NAS.
+Run this on an always-on machine in the home network, such as a home server.
 
 ```sh
 cp .env.example .env          # set REJTEK_HOST to the server's LAN IP or host name
@@ -113,17 +113,17 @@ docker compose up -d --build  # → https://<REJTEK_HOST>:8443
 - **First use:** open `https://<REJTEK_HOST>:8443` in a browser on the LAN. Use that address rather than `localhost`, because the pairing QR code contains the page's address. Accept the self-signed certificate after comparing its fingerprint with the one on the Pair page, then register.
 - **Image:** `server/Dockerfile` builds the web app, publishes the server and produces a small "chiseled" image with no shell that runs as non-root. The build context is the repository root.
 
-#### Low-power host (e.g. Synology NAS)
+#### Hosts that cannot build the image
 
-The owner's NAS runs DSM 6.2 with Docker 20.10 and the old `docker-compose` v1. It is too slow to build the image itself, so build it on a development machine for the NAS's CPU and copy it over:
+If the server is too slow to build the image itself, build it on a development machine for the server's CPU and copy it over:
 
 ```sh
 docker buildx build --platform linux/amd64 -f server/Dockerfile -t rejtek:latest --load .
-docker save rejtek:latest | gzip | ssh <user>@<nas> 'gunzip | /usr/local/bin/docker load'
-ssh <user>@<nas> 'cd /volume1/docker/rejtek && /usr/local/bin/docker-compose up -d'
+docker save rejtek:latest | gzip | ssh <user>@<server> 'gunzip | docker load'
+ssh <user>@<server> 'cd <deploy-dir> && docker compose up -d'
 ```
 
-The build stages run natively and cross-compile, so building an amd64 image on Apple Silicon needs no emulation. On first setup, copy `docker-compose.yml` and a filled-in `.env` into `/volume1/docker/rejtek` on the NAS. `image: rejtek:latest` in the compose file makes the NAS use the loaded image instead of building one. The data volume is `rejtek_rejtek-data`, under `/volume1/@docker/volumes/`.
+The build stages run natively and cross-compile, so building an amd64 image on Apple Silicon needs no emulation. On first setup, copy `docker-compose.yml` and a filled-in `.env` into the deploy directory. `image: rejtek:latest` in the compose file makes the server use the loaded image instead of building one.
 
 ### Android app (sideloaded, no Play Store)
 
@@ -144,7 +144,7 @@ Release builds are signed with the owner's own key, using the config plugin in `
    REJTEK_RELEASE_KEY_ALIAS=rejtek
    REJTEK_RELEASE_KEY_PASSWORD=<password>
    ```
-3. **Back up the `.jks` file and its password**, for example in the vault itself and on the NAS. Every update must be signed with this same key. Without it, the only way to update is to uninstall, which deletes the phone's local vault.
+3. **Back up the `.jks` file and its password**, for example in the vault itself and on an offline drive. Every update must be signed with this same key. Without it, the only way to update is to uninstall, which deletes the phone's local vault.
 
 **Build:**
 
